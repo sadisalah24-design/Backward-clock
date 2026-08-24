@@ -1,5 +1,144 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#000"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Backwards Clock"><link rel="manifest" href="manifest.webmanifest"><title>Backwards Clock</title><style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}body{touch-action:manipulation}button,input{font:inherit}#app{position:fixed;inset:0;background:#000;overflow:hidden}#wallpaper{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.01)}#shade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.18),rgba(0,0,0,.05) 40%,rgba(0,0,0,.2))}#fakeStatus{position:absolute;top:0;left:0;right:0;height:54px;padding:10px 15px 0;display:flex;align-items:flex-start;justify-content:space-between;font-size:17px;font-weight:600;z-index:3}.statusRight{display:flex;gap:8px;align-items:center}.signal{display:inline-flex;align-items:flex-end;gap:2px;height:16px}.signal i{display:block;width:3px;background:#fff;border-radius:2px}.signal i:nth-child(1){height:6px}.signal i:nth-child(2){height:9px}.signal i:nth-child(3){height:12px}.signal i:nth-child(4){height:15px}.wifi{font-size:17px}.battery{width:25px;height:12px;border:1.5px solid #fff;border-radius:3px;position:relative;padding:1px}.battery:after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:#fff}.battery span{display:block;height:100%;width:86%;background:#fff;border-radius:1px}#lockScreen{position:absolute;inset:54px 0 0;z-index:2;display:flex;flex-direction:column;align-items:center}#topDate{margin-top:4vh;font-size:18px;font-weight:500;text-shadow:0 2px 10px #0004}#bigTime{margin-top:2px;font-size:clamp(92px,28vw,165px);font-weight:300;letter-spacing:-6px;line-height:.94;text-shadow:0 3px 18px #0004;font-variant-numeric:tabular-nums}#bottom{position:absolute;left:0;right:0;bottom:6vh;display:flex;justify-content:space-between;padding:0 18%;z-index:3}.lockIcon{width:44px;height:44px;border-radius:50%;background:#0005;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;font-size:20px}#setup{position:absolute;inset:0;z-index:10;background:#101216;overflow:auto;padding:calc(env(safe-area-inset-top) + 30px) 22px calc(env(safe-area-inset-bottom) + 30px)}.card,.panel{max-width:520px;margin:0 auto}h1{font-size:32px;margin:10px 0 8px}.sub{color:#a9adb5;line-height:1.5;margin:0 0 22px}.section{margin:18px 0}.label{display:block;color:#a9adb5;font-size:13px;margin:0 0 8px}input[type=time]{width:100%;background:#20232a;color:#fff;border:1px solid #343942;border-radius:14px;padding:14px 16px}.primary,.secondary,.upload{width:100%;border:0;border-radius:14px;padding:15px 16px}.primary{background:#fff;color:#000;font-weight:700}.secondary,.upload{background:#242830;color:#fff}.upload{display:flex;align-items:center;justify-content:center;cursor:pointer}.small{font-size:13px;color:#a9adb5;line-height:1.45}#wallInput{display:none}#cameraVideo{position:fixed;width:2px;height:2px;left:-10px;top:-10px;opacity:.01;pointer-events:none}#armedDot{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#34c759;display:none;z-index:5}#settingsOverlay{display:none;position:absolute;inset:0;z-index:20;background:#0a0a0cf2;padding:calc(env(safe-area-inset-top) + 24px) 22px calc(env(safe-area-inset-bottom) + 24px)}#closeSettings{margin-bottom:20px}.range{width:100%}#toast{position:absolute;left:50%;bottom:24px;transform:translate(-50%,20px);background:#000b;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 15px;border-radius:12px;font-size:13px;opacity:0;transition:.25s;z-index:30;white-space:nowrap}#toast.show{opacity:1;transform:translate(-50%,0)}.hidden{display:none!important}
-</style></head><body><div id="app"><div id="wallpaper"></div><div id="shade"></div><div id="fakeStatus"><span id="statusTime">16:49</span><span class="statusRight"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi">⌁</span><span class="battery"><span></span></span></span></div><div id="armedDot"></div><main id="lockScreen"><div id="topDate"></div><div id="bigTime">16:49</div><div id="bottom"><div class="lockIcon">🔦</div><div class="lockIcon">📷</div></div></main><video id="cameraVideo" autoplay playsinline muted></video><section id="setup"><div class="card"><h1>Backwards Clock 🪄</h1><p class="sub">Seyirciye birkaç dakika ilerideki saati göster. Elini kameranın önünden geçirince saat geriye doğru gerçek saate gelsin.</p><div class="section"><label class="label">Gösterilecek başlangıç saati</label><input id="startTime" type="time"><p class="small">Gerçek saat 16:49 ise 16:54 gibi bir saat seç.</p></div><div class="section"><label class="label">Duvar kâğıdı</label><label class="upload" for="wallInput">Fotoğraf seç / kilit ekranı yap</label><input id="wallInput" type="file" accept="image/*"></div><div class="section"><button id="cameraBtn" class="secondary">Kamerayı hazırla</button></div><div class="section"><button id="startBtn" class="primary">Gösteriyi başlat</button></div><p class="small">Kamera yalnızca el hareketini algılamak için kullanılır. Kamera izni verilmezse ekrana dokunarak da tetikleyebilirsin.</p></div></section><section id="settingsOverlay"><div class="panel"><button id="closeSettings" class="secondary">Kapat</button><h1>Ayarlar</h1><div class="section"><label class="label">El hareketi hassasiyeti</label><input id="sensitivity" class="range" type="range" min="12" max="55" value="28"><p class="small">Daha düşük değer daha hassastır. Yanlış tetikleniyorsa yükselt.</p></div><div class="section"><button id="manualTrigger" class="primary">Şimdi tetikle</button></div><div class="section"><button id="backSetup" class="secondary">Kurulum ekranına dön</button></div></div></section><div id="toast"></div></div><script>
-(()=>{const $=id=>document.getElementById(id),setup=$("setup"),lock=$("lockScreen"),video=$("cameraVideo"),time=$("bigTime"),date=$("topDate"),status=$("statusTime"),wall=$("wallpaper"),toast=$("toast"),settings=$("settingsOverlay"),sensitivity=$("sensitivity"),dot=$("armedDot");let stream=null,running=false,detecting=false,lastFrame=null,lastTrigger=0,shownMs=Date.now(),raf=0;const days=["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],months=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];const pad=n=>String(n).padStart(2,"0");function fmt(ms){let d=new Date(ms);return pad(d.getHours())+":"+pad(d.getMinutes())}function fmtDate(ms){let d=new Date(ms);return days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]}function render(ms){shownMs=ms;time.textContent=fmt(ms);date.textContent=fmtDate(ms);status.textContent=fmt(Date.now())}function msg(s){toast.textContent=s;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}function defaultTime(){let d=new Date();d.setMinutes(d.getMinutes()+5);return pad(d.getHours())+":"+pad(d.getMinutes())}function getStart(){let [h,m]=$("startTime").value.split(":").map(Number),n=new Date(),t=new Date(n);t.setHours(h,m,0,0);if(t<=n)t.setDate(t.getDate()+1);return t.getTime()}async function camera(){try{if(stream)stream.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});video.srcObject=stream;await video.play();msg("Kamera hazır ✓");return true}catch(e){msg("Kamera izni verilmedi");return false}}function trigger(){let now=performance.now();if(now-lastTrigger<2200)return;lastTrigger=now;let from=shownMs,to=Date.now(),distance=from-to;if(distance<=500){render(to);return}let duration=Math.max(1500,Math.min(4200,1000+distance/5)),start=performance.now();cancelAnimationFrame(raf);function f(t){let p=Math.min(1,(t-start)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;render(from+(to-from)*e);if(p<1)raf=requestAnimationFrame(f);else render(Date.now())}raf=requestAnimationFrame(f)}function detect(){if(detecting)return;detecting=true;let c=document.createElement("canvas"),ctx=c.getContext("2d",{willReadFrequently:true});c.width=96;c.height=72;function loop(){if(!detecting)return;if(running&&video.readyState>=2){ctx.drawImage(video,0,0,96,72);let d=ctx.getImageData(0,0,96,72).data,diff=0;if(lastFrame){for(let i=0;i<d.length;i+=16)diff+=Math.abs(d[i]-lastFrame[i])+Math.abs(d[i+1]-lastFrame[i+1])+Math.abs(d[i+2]-lastFrame[i+2]);diff/=((d.length/16)*3);if(diff>Number(sensitivity.value))trigger()}lastFrame=new Uint8ClampedArray(d)}requestAnimationFrame(loop)}loop()}$("cameraBtn").onclick=camera;$("startBtn").onclick=async()=>{render(getStart());setup.classList.add("hidden");running=true;dot.style.display="block";if(!stream)await camera();detect();msg("Hazır — elini kameranın önünden geçir")};lock.addEventListener("click",e=>{if(running&&!e.target.closest(".lockIcon"))trigger()});let lastTap=0;lock.addEventListener("touchend",e=>{let t=Date.now();if(t-lastTap<350&&e.changedTouches[0].clientX<100&&e.changedTouches[0].clientY<140)settings.style.display="block";lastTap=t});$("closeSettings").onclick=()=>settings.style.display="none";$("manualTrigger").onclick=()=>{settings.style.display="none";trigger()};$("backSetup").onclick=()=>{settings.style.display="none";setup.classList.remove("hidden");running=false;dot.style.display="none"};$("wallInput").onchange=e=>{let f=e.target.files&&e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>wall.style.backgroundImage=`url("${r.result}")`;r.readAsDataURL(f)};$("startTime").value=defaultTime();render(Date.now());setInterval(()=>{if(!running)render(Date.now())},1000);window.addEventListener("pagehide",()=>{if(stream)stream.getTracks().forEach(t=>t.stop())})})();
-</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));</script></body></html>
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Backwards Clock">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Backwards Clock</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+body{touch-action:manipulation}
+#app{position:fixed;inset:0;overflow:hidden;background:#000}
+#wall{position:absolute;inset:0;background:#111 center/cover no-repeat;transition:filter .2s}
+#shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.02) 45%,rgba(0,0,0,.2))}
+#status{position:absolute;top:0;left:0;right:0;height:54px;padding:10px 16px 0;display:flex;justify-content:space-between;z-index:5;font-size:17px;font-weight:600;text-shadow:0 1px 5px #000}
+.status-right{display:flex;align-items:center;gap:8px}.signal{display:flex;align-items:end;gap:2px}.signal i{width:3px;background:#fff;border-radius:2px}.signal i:nth-child(1){height:6px}.signal i:nth-child(2){height:9px}.signal i:nth-child(3){height:12px}.signal i:nth-child(4){height:15px}.wifi{font-size:18px}.bat{width:25px;height:12px;border:1.5px solid #fff;border-radius:3px;padding:1px;position:relative}.bat:after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:#fff}.bat span{display:block;width:88%;height:100%;background:#fff;border-radius:1px}
+#screen{position:absolute;inset:54px 0 0;z-index:3;display:flex;flex-direction:column;align-items:center}
+#date{margin-top:5.2vh;font-size:18px;font-weight:500;text-shadow:0 2px 12px #000}
+#clock{margin-top:1px;font-size:clamp(92px,28vw,165px);font-weight:300;letter-spacing:-6px;line-height:.94;font-variant-numeric:tabular-nums;text-shadow:0 3px 20px rgba(0,0,0,.35)}
+.widget-row{width:min(88%,390px);height:66px;margin-top:17px;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(10,10,10,.30);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden}
+.widget{display:flex;align-items:center;justify-content:center;gap:7px;padding:5px 8px;font-size:13px;text-align:center;line-height:1.15;border-right:1px solid rgba(255,255,255,.10)}.widget:last-child{border:0}
+.widget .big{font-size:20px;font-weight:600}.widget .muted{opacity:.7;font-size:10px;margin-top:2px}
+#widget2{width:min(88%,390px);margin-top:10px;height:48px;border-radius:15px}
+#bottom{position:absolute;left:0;right:0;bottom:5.5vh;display:flex;justify-content:space-between;padding:0 12%;z-index:5}
+.action{width:54px;height:54px;border-radius:50%;border:0;background:rgba(0,0,0,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:24px;display:grid;place-items:center}
+#cameraVideo{position:fixed;width:2px;height:2px;left:-10px;top:-10px;opacity:.01;pointer-events:none}
+#setup,#settings{position:absolute;inset:0;z-index:20;background:#101216;overflow:auto;padding:calc(env(safe-area-inset-top) + 28px) 20px calc(env(safe-area-inset-bottom) + 28px)}
+.panel{max-width:520px;margin:auto}h1{font-size:30px;margin:8px 0}.sub,.small{color:#a9adb5;line-height:1.45}.section{margin:18px 0}.label{display:block;color:#a9adb5;font-size:13px;margin-bottom:8px}
+input,select,button{font:inherit}.field{width:100%;padding:14px 15px;border-radius:13px;border:1px solid #353a43;background:#20242b;color:#fff;outline:none}
+.btn{width:100%;border:0;border-radius:14px;padding:15px;margin-top:10px}.primary{background:#fff;color:#000;font-weight:700}.secondary{background:#252a32;color:#fff}
+#settings{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.range{width:100%}
+.file{display:flex;align-items:center;justify-content:center;height:48px;border-radius:14px;background:#252a32}.hidden{display:none!important}
+#toast{position:absolute;left:50%;bottom:25px;transform:translate(-50%,20px);opacity:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);padding:10px 14px;border-radius:12px;font-size:13px;z-index:50;transition:.2s;white-space:nowrap}.show{opacity:1!important;transform:translate(-50%,0)!important}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="wall"></div><div id="shade"></div>
+<div id="status"><span id="statusTime">17:36</span><span class="status-right"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi">⌁</span><span class="bat"><span></span></span></span></div>
+<div id="screen">
+  <div id="date">Pazartesi, 24 Ağustos</div>
+  <div id="clock">17:36</div>
+  <div class="widget-row">
+    <div class="widget" id="wLeft"><div><div class="big" id="leftMain">♫</div><div class="muted" id="leftSub">Müzik</div></div></div>
+    <div class="widget" id="wCenter"><div><div class="big" id="centerMain">48%</div><div class="muted" id="centerSub">Pil</div></div></div>
+    <div class="widget" id="wRight"><div><div class="big" id="rightMain">--:--</div><div class="muted" id="rightSub">Ezan</div></div></div>
+  </div>
+  <div class="widget-row" id="widget2">
+    <div class="widget"><div><div class="big" id="lowerLeft">📅</div><div class="muted" id="lowerLeftSub">Tarih</div></div></div>
+    <div class="widget" style="grid-column:span 2"><div><div class="big" id="lowerRight">Bugün</div><div class="muted" id="lowerRightSub">Kişiselleştirilebilir</div></div></div>
+  </div>
+</div>
+<div id="bottom"><button class="action" id="torch" aria-label="Fener">⌕</button><button class="action" id="cameraBtn2" aria-label="Kamera">●</button></div>
+<video id="cameraVideo" autoplay playsinline muted></video>
+
+<section id="setup"><div class="panel">
+<h1>Backwards Clock 🪄</h1><p class="sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
+<div class="section"><label class="label">Başlangıç saati</label><input class="field" id="startTime" type="time"><p class="small">Gerçek saatten birkaç dakika ileride seç.</p></div>
+<div class="section"><label class="label">Duvar kâğıdı</label><label class="file" for="wallInput">Fotoğraf seç</label><input class="hidden" id="wallInput" type="file" accept="image/*"></div>
+<button class="btn secondary" id="cameraPrepare">Kamerayı hazırla</button>
+<button class="btn primary" id="start">Gösteriyi başlat</button>
+<button class="btn secondary" id="openSettings">Widget / Görünüm ayarları</button>
+<p class="small">Kamera ile el hareketi otomatik tetikler. Kamera kullanılamazsa ekrana dokunmak da numarayı başlatır.</p>
+</div></section>
+
+<section id="settings"><div class="panel">
+<button class="btn secondary" id="closeSettings">Kapat</button><h1>Widget'lar</h1>
+<div class="section"><label class="label">Sol widget</label><select class="field" id="leftSel"><option value="music">Müzik</option><option value="date">Tarih</option><option value="weather">Hava durumu</option><option value="custom">Özel</option></select></div>
+<div class="section"><label class="label">Orta widget</label><select class="field" id="centerSel"><option value="battery">Pil</option><option value="date">Tarih</option><option value="custom">Özel</option></select></div>
+<div class="section"><label class="label">Sağ widget</label><select class="field" id="rightSel"><option value="prayer">Ezan vakti</option><option value="weather">Hava durumu</option><option value="date">Tarih</option><option value="custom">Özel</option></select></div>
+<div class="section"><label class="label">Şehir (ezan vakti için)</label><input class="field" id="city" placeholder="İstanbul"></div>
+<div class="section"><label class="label">Özel widget metni</label><input class="field" id="customText" placeholder="Örn. 20:30 Sinema"></div>
+<div class="section"><label class="label">El hareketi hassasiyeti</label><input class="range" id="sens" type="range" min="12" max="55" value="28"></div>
+<button class="btn primary" id="saveSettings">Kaydet</button>
+</div></section>
+<div id="toast"></div>
+</div>
+
+<script>
+(()=> {
+const $=id=>document.getElementById(id);
+const DAYS=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'], MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+let stream=null,running=false,detecting=false,lastFrame=null,lastTrigger=0,shown=Date.now(),raf=0;
+let settings=JSON.parse(localStorage.getItem('bc-settings')||'{"left":"music","center":"battery","right":"prayer","city":"İstanbul","custom":"","sens":28}');
+
+function pad(n){return String(n).padStart(2,'0')}
+function time(ms){let d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function date(ms){let d=new Date(ms);return DAYS[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]}
+function render(ms){shown=ms;$('clock').textContent=time(ms);$('date').textContent=date(ms);$('statusTime').textContent=time(Date.now())}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
+function applySettings(){
+  $('leftSel').value=settings.left;$('centerSel').value=settings.center;$('rightSel').value=settings.right;$('city').value=settings.city;$('customText').value=settings.custom;$('sens').value=settings.sens;
+  const map={music:['♫','Müzik'],date:[date(Date.now()).split(',')[1].trim(),'Tarih'],weather:['☁','Hava'],custom:[settings.custom||'—','Özel']};
+  [$('leftMain'),$('leftSub')];let a=map[settings.left]||map.music;$('leftMain').textContent=a[0];$('leftSub').textContent=a[1];
+  if(settings.center==='battery' && navigator.getBattery){navigator.getBattery().then(b=>{$('centerMain').textContent=Math.round(b.level*100)+'%';$('centerSub').textContent='Pil'})}else if(settings.center==='date'){$('centerMain').textContent=new Date().getDate();$('centerSub').textContent=MONTHS[new Date().getMonth()]}else{$('centerMain').textContent=settings.custom||'—';$('centerSub').textContent='Özel'}
+  if(settings.right==='prayer') fetchPrayer(); else if(settings.right==='date'){$('rightMain').textContent=pad(new Date().getHours())+':'+pad(new Date().getMinutes());$('rightSub').textContent='Saat'} else if(settings.right==='weather'){$('rightMain').textContent='☁';$('rightSub').textContent='Hava'} else {$('rightMain').textContent=settings.custom||'—';$('rightSub').textContent='Özel'}
+}
+async function fetchPrayer(){
+  const city=encodeURIComponent(settings.city||'Istanbul');
+  try{
+    const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city='+city+'&country=Turkey&method=13');
+    const j=await r.json(); const t=j.data.timings; const now=new Date(); const mins=now.getHours()*60+now.getMinutes();
+    const list=[['Fajr',t.Fajr],['Dhuhr',t.Dhuhr],['Asr',t.Asr],['Maghrib',t.Maghrib],['Isha',t.Isha]].map(x=>[x[0],x[1],x[1].split(':').map(Number)]);
+    let next=list.find(x=>x[2][0]*60+x[2][1]>mins)||list[0]; $('rightMain').textContent=next[1];$('rightSub').textContent=next[0];
+  }catch(e){$('rightMain').textContent='—';$('rightSub').textContent='Ezan'}
+}
+async function camera(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    $('cameraVideo').srcObject=stream;await $('cameraVideo').play();toast('Kamera hazır ✓');return true
+  }catch(e){toast('Kamera izni verilmedi');return false}
+}
+function trigger(){
+  let now=performance.now();if(now-lastTrigger<2200)return;lastTrigger=now;
+  const from=shown,to=Date.now(),duration=Math.max(1500,Math.min(4200,1000+(from-to)/5)),t0=performance.now();
+  cancelAnimationFrame(raf);
+  function f(t){let p=Math.min(1,(t-t0)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;render(from+(to-from)*e);if(p<1)raf=requestAnimationFrame(f);else render(Date.now())}
+  raf=requestAnimationFrame(f)
+}
+function detect(){
+  if(detecting)return;detecting=true;let c=document.createElement('canvas');c.width=96;c.height=72;let x=c.getContext('2d',{willReadFrequently:true});
+  function loop(){if(!detecting)return;if(running&&$('cameraVideo').readyState>=2){x.drawImage($('cameraVideo'),0,0,96,72);let d=x.getImageData(0,0,96,72).data,diff=0;if(lastFrame){for(let i=0;i<d.length;i+=16)diff+=Math.abs(d[i]-lastFrame[i])+Math.abs(d[i+1]-lastFrame[i+1])+Math.abs(d[i+2]-lastFrame[i+2]);diff/=((d.length/16)*3);if(diff>Number(settings.sens))trigger()}lastFrame=new Uint8ClampedArray(d)}requestAnimationFrame(loop)}loop()
+}
+$('startTime').value=(()=>{let d=new Date(Date.now()+5*60000);return pad(d.getHours())+':'+pad(d.getMinutes())})();
+$('wallInput').onchange=()=>{let f=$('wallInput').files[0];if(!f)return;let r=new FileReader();r.onload=()=>{$('wall').style.backgroundImage='url("'+r.result+'")';localStorage.setItem('bc-wall',r.result)};r.readAsDataURL(f)};
+let savedWall=localStorage.getItem('bc-wall');if(savedWall)$('wall').style.backgroundImage='url("'+savedWall+'")';
+$('cameraPrepare').onclick=camera;
+$('start').onclick=async()=>{let [h,m]=$('startTime').value.split(':').map(Number),n=new Date(),t=new Date(n);t.setHours(h,m,0,0);if(t<=n)t.setDate(t.getDate()+1);render(t.getTime());$('setup').classList.add('hidden');running=true;if(!stream)await camera();detect();toast('Elini kameranın önünden geçir')};
+$('screen').onclick=()=>{if(running)trigger()};
+$('openSettings').onclick=()=>{$('setup').classList.add('hidden');$('settings').style.display='block'};
+$('closeSettings').onclick=()=>{$('settings').style.display='none';$('setup').classList.remove('hidden')};
+$('saveSettings').onclick=()=>{settings={left:$('leftSel').value,center:$('centerSel').value,right:$('rightSel').value,city:$('city').value.trim()||'İstanbul',custom:$('customText').value,sens:Number($('sens').value)};localStorage.setItem('bc-settings',JSON.stringify(settings));applySettings();$('settings').style.display='none';$('setup').classList.remove('hidden');toast('Ayarlar kaydedildi ✓')};
+$('torch').onclick=async()=>{if(stream&&stream.getVideoTracks()[0].getCapabilities){let track=stream.getVideoTracks()[0],caps=track.getCapabilities();if(caps.torch){await track.applyConstraints({advanced:[{torch:true}]});setTimeout(()=>track.applyConstraints({advanced:[{torch:false}]}),1000);toast('Fener') }else toast('Web sürümünde fener kontrolü iOS tarafından kısıtlı')}};
+$('cameraBtn2').onclick=()=>camera();
+applySettings();render(Date.now());setInterval(()=>{if(!running)render(Date.now());else $('statusTime').textContent=time(Date.now())},1000);
+})();
+</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
+</body>
+</html>
