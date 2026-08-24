@@ -1,1 +1,10 @@
-{"name":"Backwards Clock","short_name":"Backwards Clock","description":"El hareketiyle saati geriye götüren sihirbazlık uygulaması.","start_url":"./","scope":"./","display":"fullscreen","orientation":"portrait","background_color":"#000000","theme_color":"#000000"}
+{
+  "name":"Backwards Clock",
+  "short_name":"Backwards Clock",
+  "start_url":"./",
+  "scope":"./",
+  "display":"fullscreen",
+  "orientation":"portrait",
+  "background_color":"#000000",
+  "theme_color":"#000000"
+}
