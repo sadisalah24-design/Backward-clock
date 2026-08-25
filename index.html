@@ -1,144 +1,238 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Backwards Clock">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Backwards Clock</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
-body{touch-action:manipulation}
-#app{position:fixed;inset:0;overflow:hidden;background:#000}
-#wall{position:absolute;inset:0;background:#111 center/cover no-repeat;transition:filter .2s}
-#shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.02) 45%,rgba(0,0,0,.2))}
-#status{position:absolute;top:0;left:0;right:0;height:54px;padding:10px 16px 0;display:flex;justify-content:space-between;z-index:5;font-size:17px;font-weight:600;text-shadow:0 1px 5px #000}
-.status-right{display:flex;align-items:center;gap:8px}.signal{display:flex;align-items:end;gap:2px}.signal i{width:3px;background:#fff;border-radius:2px}.signal i:nth-child(1){height:6px}.signal i:nth-child(2){height:9px}.signal i:nth-child(3){height:12px}.signal i:nth-child(4){height:15px}.wifi{font-size:18px}.bat{width:25px;height:12px;border:1.5px solid #fff;border-radius:3px;padding:1px;position:relative}.bat:after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:#fff}.bat span{display:block;width:88%;height:100%;background:#fff;border-radius:1px}
-#screen{position:absolute;inset:54px 0 0;z-index:3;display:flex;flex-direction:column;align-items:center}
-#date{margin-top:5.2vh;font-size:18px;font-weight:500;text-shadow:0 2px 12px #000}
-#clock{margin-top:1px;font-size:clamp(92px,28vw,165px);font-weight:300;letter-spacing:-6px;line-height:.94;font-variant-numeric:tabular-nums;text-shadow:0 3px 20px rgba(0,0,0,.35)}
-.widget-row{width:min(88%,390px);height:66px;margin-top:17px;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(10,10,10,.30);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden}
-.widget{display:flex;align-items:center;justify-content:center;gap:7px;padding:5px 8px;font-size:13px;text-align:center;line-height:1.15;border-right:1px solid rgba(255,255,255,.10)}.widget:last-child{border:0}
-.widget .big{font-size:20px;font-weight:600}.widget .muted{opacity:.7;font-size:10px;margin-top:2px}
-#widget2{width:min(88%,390px);margin-top:10px;height:48px;border-radius:15px}
-#bottom{position:absolute;left:0;right:0;bottom:5.5vh;display:flex;justify-content:space-between;padding:0 12%;z-index:5}
-.action{width:54px;height:54px;border-radius:50%;border:0;background:rgba(0,0,0,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:24px;display:grid;place-items:center}
-#cameraVideo{position:fixed;width:2px;height:2px;left:-10px;top:-10px;opacity:.01;pointer-events:none}
-#setup,#settings{position:absolute;inset:0;z-index:20;background:#101216;overflow:auto;padding:calc(env(safe-area-inset-top) + 28px) 20px calc(env(safe-area-inset-bottom) + 28px)}
-.panel{max-width:520px;margin:auto}h1{font-size:30px;margin:8px 0}.sub,.small{color:#a9adb5;line-height:1.45}.section{margin:18px 0}.label{display:block;color:#a9adb5;font-size:13px;margin-bottom:8px}
-input,select,button{font:inherit}.field{width:100%;padding:14px 15px;border-radius:13px;border:1px solid #353a43;background:#20242b;color:#fff;outline:none}
-.btn{width:100%;border:0;border-radius:14px;padding:15px;margin-top:10px}.primary{background:#fff;color:#000;font-weight:700}.secondary{background:#252a32;color:#fff}
-#settings{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.range{width:100%}
-.file{display:flex;align-items:center;justify-content:center;height:48px;border-radius:14px;background:#252a32}.hidden{display:none!important}
-#toast{position:absolute;left:50%;bottom:25px;transform:translate(-50%,20px);opacity:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);padding:10px 14px;border-radius:12px;font-size:13px;z-index:50;transition:.2s;white-space:nowrap}.show{opacity:1!important;transform:translate(-50%,0)!important}
-</style>
+    <meta charset="UTF-8">
+    <!-- PWA ve Tam Ekran Ayarları -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Backwards Clock V3</title>
+    
+    <style>
+        /* Genel Sıfırlama ve Font Ayarları */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Kaydırmayı engelle */
+            height: 100vh;
+            width: 100vw;
+            /* Duvar kağıdını buraya ekleyebilirsin */
+            background-image: url('wallpaper.jpg'); 
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Karartma Efekti (Yazıların okunması için) */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
+        }
+
+        /* Saat ve Tarih Alanı */
+        .header-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-top: 80px; /* Status bar boşluğu */
+        }
+
+        .date {
+            font-size: 22px;
+            font-weight: 400;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            margin-bottom: -5px;
+        }
+
+        .time {
+            font-size: 96px;
+            font-weight: 200; /* İnce iOS saati */
+            letter-spacing: -2px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Widget Havuzu ve Özgür Widget'lar */
+        .widget {
+            position: absolute;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            cursor: grab;
+            user-select: none; /* Metin seçimini engelle */
+            touch-action: none; /* Tarayıcı kaydırmasını engelle */
+            opacity: 0.95;
+        }
+        
+        .widget:active {
+            cursor: grabbing;
+        }
+
+        .widget-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .widget-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Alt İkonlar (Fener ve Kamera) */
+        .bottom-controls {
+            position: absolute;
+            bottom: 50px; /* Home indicator boşluğu */
+            width: 100%;
+            padding: 0 46px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .icon-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        /* Home Indicator (Sahte) */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 100px;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-<div id="wall"></div><div id="shade"></div>
-<div id="status"><span id="statusTime">17:36</span><span class="status-right"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi">⌁</span><span class="bat"><span></span></span></span></div>
-<div id="screen">
-  <div id="date">Pazartesi, 24 Ağustos</div>
-  <div id="clock">17:36</div>
-  <div class="widget-row">
-    <div class="widget" id="wLeft"><div><div class="big" id="leftMain">♫</div><div class="muted" id="leftSub">Müzik</div></div></div>
-    <div class="widget" id="wCenter"><div><div class="big" id="centerMain">48%</div><div class="muted" id="centerSub">Pil</div></div></div>
-    <div class="widget" id="wRight"><div><div class="big" id="rightMain">--:--</div><div class="muted" id="rightSub">Ezan</div></div></div>
-  </div>
-  <div class="widget-row" id="widget2">
-    <div class="widget"><div><div class="big" id="lowerLeft">📅</div><div class="muted" id="lowerLeftSub">Tarih</div></div></div>
-    <div class="widget" style="grid-column:span 2"><div><div class="big" id="lowerRight">Bugün</div><div class="muted" id="lowerRightSub">Kişiselleştirilebilir</div></div></div>
-  </div>
-</div>
-<div id="bottom"><button class="action" id="torch" aria-label="Fener">⌕</button><button class="action" id="cameraBtn2" aria-label="Kamera">●</button></div>
-<video id="cameraVideo" autoplay playsinline muted></video>
 
-<section id="setup"><div class="panel">
-<h1>Backwards Clock 🪄</h1><p class="sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
-<div class="section"><label class="label">Başlangıç saati</label><input class="field" id="startTime" type="time"><p class="small">Gerçek saatten birkaç dakika ileride seç.</p></div>
-<div class="section"><label class="label">Duvar kâğıdı</label><label class="file" for="wallInput">Fotoğraf seç</label><input class="hidden" id="wallInput" type="file" accept="image/*"></div>
-<button class="btn secondary" id="cameraPrepare">Kamerayı hazırla</button>
-<button class="btn primary" id="start">Gösteriyi başlat</button>
-<button class="btn secondary" id="openSettings">Widget / Görünüm ayarları</button>
-<p class="small">Kamera ile el hareketi otomatik tetikler. Kamera kullanılamazsa ekrana dokunmak da numarayı başlatır.</p>
-</div></section>
+    <div class="overlay"></div>
 
-<section id="settings"><div class="panel">
-<button class="btn secondary" id="closeSettings">Kapat</button><h1>Widget'lar</h1>
-<div class="section"><label class="label">Sol widget</label><select class="field" id="leftSel"><option value="music">Müzik</option><option value="date">Tarih</option><option value="weather">Hava durumu</option><option value="custom">Özel</option></select></div>
-<div class="section"><label class="label">Orta widget</label><select class="field" id="centerSel"><option value="battery">Pil</option><option value="date">Tarih</option><option value="custom">Özel</option></select></div>
-<div class="section"><label class="label">Sağ widget</label><select class="field" id="rightSel"><option value="prayer">Ezan vakti</option><option value="weather">Hava durumu</option><option value="date">Tarih</option><option value="custom">Özel</option></select></div>
-<div class="section"><label class="label">Şehir (ezan vakti için)</label><input class="field" id="city" placeholder="İstanbul"></div>
-<div class="section"><label class="label">Özel widget metni</label><input class="field" id="customText" placeholder="Örn. 20:30 Sinema"></div>
-<div class="section"><label class="label">El hareketi hassasiyeti</label><input class="range" id="sens" type="range" min="12" max="55" value="28"></div>
-<button class="btn primary" id="saveSettings">Kaydet</button>
-</div></section>
-<div id="toast"></div>
-</div>
+    <!-- Tarih ve Saat -->
+    <div class="header-container">
+        <div class="date">Salı, 25 Ağustos</div>
+        <div class="time">20:03</div>
+    </div>
 
-<script>
-(()=> {
-const $=id=>document.getElementById(id);
-const DAYS=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'], MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-let stream=null,running=false,detecting=false,lastFrame=null,lastTrigger=0,shown=Date.now(),raf=0;
-let settings=JSON.parse(localStorage.getItem('bc-settings')||'{"left":"music","center":"battery","right":"prayer","city":"İstanbul","custom":"","sens":28}');
+    <!-- Sürüklenebilir Widget'lar -->
+    <div class="widget" id="widget-spotify" style="top: 250px; left: 50px;">
+        <div class="widget-icon">♫</div>
+        <div class="widget-text">Spotify</div>
+    </div>
 
-function pad(n){return String(n).padStart(2,'0')}
-function time(ms){let d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())}
-function date(ms){let d=new Date(ms);return DAYS[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]}
-function render(ms){shown=ms;$('clock').textContent=time(ms);$('date').textContent=date(ms);$('statusTime').textContent=time(Date.now())}
-function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
-function applySettings(){
-  $('leftSel').value=settings.left;$('centerSel').value=settings.center;$('rightSel').value=settings.right;$('city').value=settings.city;$('customText').value=settings.custom;$('sens').value=settings.sens;
-  const map={music:['♫','Müzik'],date:[date(Date.now()).split(',')[1].trim(),'Tarih'],weather:['☁','Hava'],custom:[settings.custom||'—','Özel']};
-  [$('leftMain'),$('leftSub')];let a=map[settings.left]||map.music;$('leftMain').textContent=a[0];$('leftSub').textContent=a[1];
-  if(settings.center==='battery' && navigator.getBattery){navigator.getBattery().then(b=>{$('centerMain').textContent=Math.round(b.level*100)+'%';$('centerSub').textContent='Pil'})}else if(settings.center==='date'){$('centerMain').textContent=new Date().getDate();$('centerSub').textContent=MONTHS[new Date().getMonth()]}else{$('centerMain').textContent=settings.custom||'—';$('centerSub').textContent='Özel'}
-  if(settings.right==='prayer') fetchPrayer(); else if(settings.right==='date'){$('rightMain').textContent=pad(new Date().getHours())+':'+pad(new Date().getMinutes());$('rightSub').textContent='Saat'} else if(settings.right==='weather'){$('rightMain').textContent='☁';$('rightSub').textContent='Hava'} else {$('rightMain').textContent=settings.custom||'—';$('rightSub').textContent='Özel'}
-}
-async function fetchPrayer(){
-  const city=encodeURIComponent(settings.city||'Istanbul');
-  try{
-    const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city='+city+'&country=Turkey&method=13');
-    const j=await r.json(); const t=j.data.timings; const now=new Date(); const mins=now.getHours()*60+now.getMinutes();
-    const list=[['Fajr',t.Fajr],['Dhuhr',t.Dhuhr],['Asr',t.Asr],['Maghrib',t.Maghrib],['Isha',t.Isha]].map(x=>[x[0],x[1],x[1].split(':').map(Number)]);
-    let next=list.find(x=>x[2][0]*60+x[2][1]>mins)||list[0]; $('rightMain').textContent=next[1];$('rightSub').textContent=next[0];
-  }catch(e){$('rightMain').textContent='—';$('rightSub').textContent='Ezan'}
-}
-async function camera(){
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
-    $('cameraVideo').srcObject=stream;await $('cameraVideo').play();toast('Kamera hazır ✓');return true
-  }catch(e){toast('Kamera izni verilmedi');return false}
-}
-function trigger(){
-  let now=performance.now();if(now-lastTrigger<2200)return;lastTrigger=now;
-  const from=shown,to=Date.now(),duration=Math.max(1500,Math.min(4200,1000+(from-to)/5)),t0=performance.now();
-  cancelAnimationFrame(raf);
-  function f(t){let p=Math.min(1,(t-t0)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;render(from+(to-from)*e);if(p<1)raf=requestAnimationFrame(f);else render(Date.now())}
-  raf=requestAnimationFrame(f)
-}
-function detect(){
-  if(detecting)return;detecting=true;let c=document.createElement('canvas');c.width=96;c.height=72;let x=c.getContext('2d',{willReadFrequently:true});
-  function loop(){if(!detecting)return;if(running&&$('cameraVideo').readyState>=2){x.drawImage($('cameraVideo'),0,0,96,72);let d=x.getImageData(0,0,96,72).data,diff=0;if(lastFrame){for(let i=0;i<d.length;i+=16)diff+=Math.abs(d[i]-lastFrame[i])+Math.abs(d[i+1]-lastFrame[i+1])+Math.abs(d[i+2]-lastFrame[i+2]);diff/=((d.length/16)*3);if(diff>Number(settings.sens))trigger()}lastFrame=new Uint8ClampedArray(d)}requestAnimationFrame(loop)}loop()
-}
-$('startTime').value=(()=>{let d=new Date(Date.now()+5*60000);return pad(d.getHours())+':'+pad(d.getMinutes())})();
-$('wallInput').onchange=()=>{let f=$('wallInput').files[0];if(!f)return;let r=new FileReader();r.onload=()=>{$('wall').style.backgroundImage='url("'+r.result+'")';localStorage.setItem('bc-wall',r.result)};r.readAsDataURL(f)};
-let savedWall=localStorage.getItem('bc-wall');if(savedWall)$('wall').style.backgroundImage='url("'+savedWall+'")';
-$('cameraPrepare').onclick=camera;
-$('start').onclick=async()=>{let [h,m]=$('startTime').value.split(':').map(Number),n=new Date(),t=new Date(n);t.setHours(h,m,0,0);if(t<=n)t.setDate(t.getDate()+1);render(t.getTime());$('setup').classList.add('hidden');running=true;if(!stream)await camera();detect();toast('Elini kameranın önünden geçir')};
-$('screen').onclick=()=>{if(running)trigger()};
-$('openSettings').onclick=()=>{$('setup').classList.add('hidden');$('settings').style.display='block'};
-$('closeSettings').onclick=()=>{$('settings').style.display='none';$('setup').classList.remove('hidden')};
-$('saveSettings').onclick=()=>{settings={left:$('leftSel').value,center:$('centerSel').value,right:$('rightSel').value,city:$('city').value.trim()||'İstanbul',custom:$('customText').value,sens:Number($('sens').value)};localStorage.setItem('bc-settings',JSON.stringify(settings));applySettings();$('settings').style.display='none';$('setup').classList.remove('hidden');toast('Ayarlar kaydedildi ✓')};
-$('torch').onclick=async()=>{if(stream&&stream.getVideoTracks()[0].getCapabilities){let track=stream.getVideoTracks()[0],caps=track.getCapabilities();if(caps.torch){await track.applyConstraints({advanced:[{torch:true}]});setTimeout(()=>track.applyConstraints({advanced:[{torch:false}]}),1000);toast('Fener') }else toast('Web sürümünde fener kontrolü iOS tarafından kısıtlı')}};
-$('cameraBtn2').onclick=()=>camera();
-applySettings();render(Date.now());setInterval(()=>{if(!running)render(Date.now());else $('statusTime').textContent=time(Date.now())},1000);
-})();
-</script>
-<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
+    <div class="widget" id="widget-weather" style="top: 250px; left: 160px;">
+        <div class="widget-icon">☀️</div>
+        <div class="widget-text">24°</div>
+    </div>
+
+    <div class="widget" id="widget-prayer" style="top: 250px; left: 260px;">
+        <div class="widget-icon">☾</div>
+        <div class="widget-text">20:31</div>
+    </div>
+
+    <!-- Fener ve Kamera -->
+    <div class="bottom-controls">
+        <div class="icon-btn">🔦</div>
+        <div class="icon-btn">📷</div>
+    </div>
+
+    <!-- Home Indicator -->
+    <div class="home-indicator"></div>
+
+    <script>
+        // Widget'ları sürüklenebilir yapma fonksiyonu
+        function makeDraggable(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            // Kaydedilmiş konumu yükle
+            const savedX = localStorage.getItem(elmnt.id + '_x');
+            const savedY = localStorage.getItem(elmnt.id + '_y');
+            
+            if (savedX !== null && savedY !== null) {
+                elmnt.style.left = savedX + "px";
+                elmnt.style.top = savedY + "px";
+            }
+
+            // Fare ve Dokunmatik eventleri
+            elmnt.onmousedown = dragMouseDown;
+            elmnt.ontouchstart = dragTouchStart;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function dragTouchStart(e) {
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                document.ontouchend = closeDragElement;
+                document.ontouchmove = elementTouchDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function elementTouchDrag(e) {
+                pos1 = pos3 - e.touches[0].clientX;
+                pos2 = pos4 - e.touches[0].clientY;
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // Sürükleme bittiğinde eventleri temizle
+                document.onmouseup = null;
+                document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
+                
+                // Bırakılan yeni konumu localStorage'a kaydet
+                localStorage.setItem(elmnt.id + '_x', elmnt.offsetLeft);
+                localStorage.setItem(elmnt.id + '_y', elmnt.offsetTop);
+            }
+        }
+
+        // Tüm widget'lara sürükleme özelliğini tanımla
+        makeDraggable(document.getElementById("widget-spotify"));
+        makeDraggable(document.getElementById("widget-weather"));
+        makeDraggable(document.getElementById("widget-prayer"));
+    </script>
 </body>
 </html>
