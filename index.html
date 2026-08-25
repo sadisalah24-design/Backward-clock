@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Backwards Clock V3</title>
+    <title>Backwards Clock</title>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,27 +19,88 @@
             width: 100vw;
             background-size: cover;
             background-position: center;
-            transition: background-image 0.3s ease;
         }
 
-        /* Arka plan karartması */
+        /* --- BAŞLANGIÇ ARAYÜZÜ (SETUP EKRANI) --- */
+        #setup-screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #111;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #setup-screen h1 {
+            font-weight: 300;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .start-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            transition: 0.2s;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+
+
+        /* --- GÖSTERİ EKRANI (KİLİT EKRANI) --- */
+        #lock-screen {
+            display: none; /* Başlangıçta gizli */
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
         .overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2); /* Duvar kağıdını hafif karartır */
             z-index: 1;
-        }
-
-        /* Gizli Ayarlar Butonu */
-        .settings-btn {
-            position: absolute;
-            top: 50px;
-            right: 20px;
-            z-index: 50;
-            opacity: 0.1; /* Gösteri sırasında dikkat çekmesin */
-            font-size: 20px;
-            cursor: pointer;
-            padding: 10px;
         }
 
         /* Saat ve Tarih */
@@ -47,7 +108,7 @@
             position: relative;
             z-index: 10;
             text-align: center;
-            margin-top: 80px; 
+            padding-top: 80px; 
         }
 
         .date {
@@ -64,16 +125,16 @@
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 
-        /* Saatin Üzerindeki Görünmez Tetikleyici */
+        /* Saati geriye saran görünmez tetikleyici */
         .trick-trigger {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
-            height: 200px; /* Saatin etrafını kaplar */
+            height: 200px;
             z-index: 20;
         }
 
-        /* Sürüklenebilir Widget'lar */
+        /* Yeni Doğal Widget'lar (Siyah kutu yok) */
         .widget {
             position: absolute;
             z-index: 30;
@@ -82,18 +143,19 @@
             align-items: center;
             justify-content: center;
             color: #fff;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 5px rgba(0,0,0,0.8);
             cursor: grab;
             user-select: none;
             touch-action: none;
-            opacity: 0.95;
             min-width: 60px;
         }
+        
         .widget:active { cursor: grabbing; }
-        .widget-icon { font-size: 24px; margin-bottom: 4px; }
-        .widget-text { font-size: 14px; font-weight: 500; }
+        
+        .widget-icon { font-size: 28px; margin-bottom: 2px; }
+        .widget-text { font-size: 13px; font-weight: 600; }
 
-        /* Alt Kontroller */
+        /* Fener ve Kamera */
         .bottom-controls {
             position: absolute;
             bottom: 50px; 
@@ -108,7 +170,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             display: flex;
@@ -128,109 +190,101 @@
             border-radius: 100px;
             z-index: 10;
         }
-
-        /* Ayarlar Menüsü (Modal) */
-        .settings-modal {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            color: white;
-            padding: 40px 20px;
-            flex-direction: column;
-            align-items: center;
-        }
-        .settings-modal h2 { margin-bottom: 20px; font-weight: 400; }
-        .settings-modal input { margin-bottom: 20px; padding: 10px; border-radius: 8px; border: none; font-size: 16px; text-align: center;}
-        .settings-modal button {
-            padding: 12px 24px; border-radius: 8px; border: none;
-            background: #fff; color: #000; font-size: 16px; font-weight: bold;
-            margin-top: 10px; cursor: pointer;
-        }
-        .file-upload-wrapper {
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div>
-
-    <!-- Ayarlar Butonu ve Menüsü -->
-    <div class="settings-btn" onclick="openSettings()">⚙️</div>
-    
-    <div class="settings-modal" id="settingsModal">
-        <h2>Kurulum (V3)</h2>
-        <div class="file-upload-wrapper">
-            <label>Duvar Kağıdı Seç:</label><br><br>
-            <input type="file" id="wallpaperUpload" accept="image/*">
+    <!-- 1. BAŞLANGIÇ ARAYÜZÜ (KURULUM) -->
+    <div id="setup-screen">
+        <h1>Geriye Akan Saat</h1>
+        
+        <div class="input-group">
+            <label>Duvar Kağıdı Seç</label>
+            <input type="file" id="wallpaper-input" accept="image/*">
         </div>
-        <label>Hedef Zaman (Örn: 19:57):</label>
-        <input type="text" id="targetTimeInput" placeholder="19:57">
-        <button onclick="saveSettings()">Kaydet ve Çık</button>
+
+        <div class="input-group">
+            <label>Hedef Zaman</label>
+            <input type="text" id="target-time-input" placeholder="Örn: 19:57" value="19:57">
+        </div>
+
+        <button class="start-btn" onclick="startShow()">Gösteriyi Başlat</button>
     </div>
 
-    <!-- Tarih ve Saat -->
-    <div class="header-container">
-        <div class="date" id="dateDisplay">Salı, 25 Ağustos</div>
-        <div class="time" id="timeDisplay">20:00</div>
-        <!-- Saati geriye sarmayı tetikleyecek görünmez alan -->
-        <div class="trick-trigger" id="trickTrigger"></div>
-    </div>
 
-    <!-- Sürüklenebilir Widget'lar -->
-    <div class="widget" id="widget-spotify" style="top: 250px; left: 40px;">
-        <div class="widget-icon">♫</div>
-        <div class="widget-text">Spotify</div>
-    </div>
+    <!-- 2. GÖSTERİ (KİLİT EKRANI) ARAYÜZÜ -->
+    <div id="lock-screen">
+        <div class="overlay"></div>
 
-    <div class="widget" id="widget-weather" style="top: 250px; left: 150px;">
-        <div class="widget-icon">☀️</div>
-        <div class="widget-text">24°</div>
-    </div>
+        <div class="header-container">
+            <div class="date" id="dateDisplay">Salı, 25 Ağustos</div>
+            <div class="time" id="timeDisplay">20:00</div>
+            <!-- Saatin üzerindeki görünmez tetikleyici alan -->
+            <div class="trick-trigger" id="trickTrigger"></div>
+        </div>
 
-    <div class="widget" id="widget-prayer" style="top: 250px; left: 240px;">
-        <div class="widget-icon">☾</div>
-        <div class="widget-text">20:31</div>
-    </div>
+        <!-- Siyah kutuları kaldırılmış, sürüklenebilir Widget'lar -->
+        <div class="widget" id="widget-spotify" style="top: 280px; left: 40px;">
+            <div class="widget-icon">♫</div>
+            <div class="widget-text">Spotify</div>
+        </div>
 
-    <!-- Alt İkonlar -->
-    <div class="bottom-controls">
-        <div class="icon-btn">🔦</div>
-        <div class="icon-btn">📷</div>
+        <div class="widget" id="widget-weather" style="top: 280px; left: 155px;">
+            <div class="widget-icon">☀️</div>
+            <div class="widget-text">24°</div>
+        </div>
+
+        <div class="widget" id="widget-prayer" style="top: 280px; left: 260px;">
+            <div class="widget-icon">☾</div>
+            <div class="widget-text">20:31</div>
+        </div>
+
+        <div class="bottom-controls">
+            <div class="icon-btn">🔦</div>
+            <div class="icon-btn">📷</div>
+        </div>
+        
+        <div class="home-indicator"></div>
     </div>
-    <div class="home-indicator"></div>
 
     <script>
         let realTimeInterval;
         let isTrickRunning = false;
         let trickCompleted = false;
+        let finalTargetTime = "19:57";
 
-        // 1. BAŞLANGIÇ AYARLARINI YÜKLE
-        function init() {
-            // Kaydedilmiş duvar kağıdını yükle
-            const savedWallpaper = localStorage.getItem('v3_wallpaper');
-            if (savedWallpaper) {
-                document.body.style.backgroundImage = `url(${savedWallpaper})`;
+        // GÜNCEL TARİHİ YAZDIR (Örn: Salı, 25 Ağustos)
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('tr-TR', dateOptions);
+
+        // GÖSTERİYİ BAŞLAT BUTONUNA BASILINCA
+        function startShow() {
+            // 1. Duvar Kağıdını Uygula
+            const fileInput = document.getElementById('wallpaper-input');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
             }
 
-            // Gerçek tarihi Türkçe olarak yazdır
-            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('tr-TR', dateOptions);
+            // 2. Hedef Zamanı Al
+            const timeInput = document.getElementById('target-time-input').value;
+            if (timeInput) {
+                finalTargetTime = timeInput;
+            }
 
+            // 3. Ekranları Değiştir
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('lock-screen').style.display = 'block';
+
+            // 4. Gerçek Saati Başlat ve Widget'ları Aktif Et
             startRealClock();
-            
-            // Widget'ları sürüklenebilir yap
-            makeDraggable(document.getElementById("widget-spotify"));
-            makeDraggable(document.getElementById("widget-weather"));
-            makeDraggable(document.getElementById("widget-prayer"));
+            activateDraggableWidgets();
         }
 
-        // 2. GERÇEK SAAT DÖNGÜSÜ
+        // GERÇEK SAAT SİSTEMİ
         function startRealClock() {
             updateTimeDisplay();
             realTimeInterval = setInterval(updateTimeDisplay, 1000);
@@ -244,33 +298,28 @@
             document.getElementById('timeDisplay').innerText = `${h}:${m}`;
         }
 
-        // 3. SAATİ GERİYE SARMA GÖSTERİSİ (TRICK)
+        // TRICK (GERİYE SARMA) SİSTEMİ
         document.getElementById('trickTrigger').addEventListener('touchstart', triggerTrick);
         document.getElementById('trickTrigger').addEventListener('mousedown', triggerTrick);
 
         function triggerTrick() {
             if (isTrickRunning || trickCompleted) return;
             
-            clearInterval(realTimeInterval); // Gerçek saati durdur
+            clearInterval(realTimeInterval); 
             isTrickRunning = true;
 
-            const targetTime = localStorage.getItem('v3_targetTime') || "19:57";
-            let [targetH, targetM] = targetTime.split(':').map(Number);
+            let [targetH, targetM] = finalTargetTime.split(':').map(Number);
             let targetTotalMinutes = (targetH * 60) + targetM;
 
-            // Ekrandaki mevcut saati al
             let currentTimeText = document.getElementById('timeDisplay').innerText;
             let [currentH, currentM] = currentTimeText.split(':').map(Number);
             let currentTotalMinutes = (currentH * 60) + currentM;
 
-            // Eğer hedef zaman şu anki zamandan ilerideyse (gece yarısını geçme durumu vs.)
-            // basit bir mentalizm rutini için doğrudan geriye sayım algoritması:
             let trickInterval = setInterval(() => {
                 if (currentTotalMinutes <= targetTotalMinutes) {
                     clearInterval(trickInterval);
                     isTrickRunning = false;
                     trickCompleted = true;
-                    // Eğer cihaz destekliyorsa hafif bir titreşim ver (Haptic)
                     if (navigator.vibrate) navigator.vibrate(50);
                     return;
                 }
@@ -281,46 +330,18 @@
                 document.getElementById('timeDisplay').innerText = 
                     `${String(displayH).padStart(2, '0')}:${String(displayM).padStart(2, '0')}`;
                 
-            }, 300); // 300ms geriye akış hızı (istediğin gibi değiştirebilirsin)
+            }, 300); // 300ms hızla geriye akar
         }
 
-        // 4. AYARLAR MENÜSÜ
-        function openSettings() {
-            document.getElementById('settingsModal').style.display = 'flex';
-            document.getElementById('targetTimeInput').value = localStorage.getItem('v3_targetTime') || "19:57";
+        // SÜRÜKLE BIRAK SİSTEMİ (Widget'lar için)
+        function activateDraggableWidgets() {
+            makeDraggable(document.getElementById("widget-spotify"));
+            makeDraggable(document.getElementById("widget-weather"));
+            makeDraggable(document.getElementById("widget-prayer"));
         }
 
-        function saveSettings() {
-            const targetTime = document.getElementById('targetTimeInput').value;
-            localStorage.setItem('v3_targetTime', targetTime);
-
-            const fileInput = document.getElementById('wallpaperUpload');
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Image = e.target.result;
-                    localStorage.setItem('v3_wallpaper', base64Image);
-                    document.body.style.backgroundImage = `url(${base64Image})`;
-                    document.getElementById('settingsModal').style.display = 'none';
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                document.getElementById('settingsModal').style.display = 'none';
-            }
-        }
-
-        // 5. SÜRÜKLE BIRAK SİSTEMİ
         function makeDraggable(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            
-            // Kaydedilmiş konumu yükle
-            const savedX = localStorage.getItem(elmnt.id + '_x');
-            const savedY = localStorage.getItem(elmnt.id + '_y');
-            
-            if (savedX !== null && savedY !== null) {
-                elmnt.style.left = savedX + "px";
-                elmnt.style.top = savedY + "px";
-            }
 
             elmnt.onmousedown = dragMouseDown;
             elmnt.ontouchstart = dragTouchStart;
@@ -356,14 +377,8 @@
             function closeDragElement() {
                 document.onmouseup = null; document.onmousemove = null;
                 document.ontouchend = null; document.ontouchmove = null;
-                // Yeni konumu kaydet
-                localStorage.setItem(elmnt.id + '_x', elmnt.offsetLeft);
-                localStorage.setItem(elmnt.id + '_y', elmnt.offsetTop);
             }
         }
-
-        // Uygulamayı Başlat
-        window.onload = init;
     </script>
 </body>
 </html>
