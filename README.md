@@ -1,11 +1,12 @@
-# Backwards Clock — iPhone
+# Backward Clock V3
+- iPhone portrait/fullscreen-first PWA
+- Lock-screen-like visual hierarchy
+- Saved wallpaper and widget positions
+- Freeform widget dragging in Edit Mode
+- Spotify/Music, Weather, Prayer, Date, Battery and Custom widgets
+- No start-show step
+- Optional camera motion trigger
 
-1. Bu klasördeki `index.html`, `manifest.webmanifest` ve `sw.js` dosyalarını GitHub repository ana dizinine yükle.
-2. GitHub: Settings → Pages → Build and deployment → Source: Deploy from a branch → `main` → `/ (root)` → Save.
-3. Oluşan GitHub Pages adresini iPhone Safari'de aç.
-4. Kamera izni ver; başlangıç saatini gerçek saatten 3–10 dakika ileri seç.
-5. İstersen kendi kilit ekranı görselini yükle.
-6. Gösteriyi başlat.
-7. Safari Paylaş → Ana Ekrana Ekle ile uygulama gibi kullan.
+Deploy these files to GitHub Pages, then in iPhone Safari use Share -> Add to Home Screen. Open from the Home Screen icon for the fullscreen PWA presentation.
 
-Kamera izni yoksa ekrana dokunmak da tetikleme için yedektir. iOS gerçek kilit ekranı saatini değiştiremez; bu uygulama tam ekran bir kilit ekranı simülasyonu kullanır.
+This V3 is the visual/layout prototype. Live Spotify metadata, live weather/prayer APIs and robust Vision hand tracking are planned for the native SwiftUI version.
