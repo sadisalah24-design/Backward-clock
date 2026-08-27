@@ -1,12 +1,20 @@
-# Backward Clock V3
-- iPhone portrait/fullscreen-first PWA
-- Lock-screen-like visual hierarchy
-- Saved wallpaper and widget positions
-- Freeform widget dragging in Edit Mode
-- Spotify/Music, Weather, Prayer, Date, Battery and Custom widgets
-- No start-show step
-- Optional camera motion trigger
+# Backward Clock V4
 
-Deploy these files to GitHub Pages, then in iPhone Safari use Share -> Add to Home Screen. Open from the Home Screen icon for the fullscreen PWA presentation.
+V4 focuses on the iPhone lock-screen-like presentation:
+- Only **3 widgets** are visible, directly below the clock.
+- The three slots are **left / center / right** and can be reassigned in Settings.
+- Available widgets: Spotify/Music, Weather, Prayer, Date, Battery, Custom.
+- Wallpaper is saved on the device after the first selection.
+- Widget selection/order is saved.
+- The show animates only the clock; widgets remain fixed.
+- PWA is configured for portrait fullscreen and has a V4 service-worker cache.
 
-This V3 is the visual/layout prototype. Live Spotify metadata, live weather/prayer APIs and robust Vision hand tracking are planned for the native SwiftUI version.
+## iPhone
+After GitHub Pages publishes the repository:
+1. Open the Pages address in Safari.
+2. Use Share -> Add to Home Screen.
+3. Launch from the Home Screen icon.
+
+If an older version still appears, remove the old Home Screen icon and add it again after refreshing the Pages site. V4 uses a new cache name to avoid retaining the old CSS/JS.
+
+Note: live Spotify metadata, live weather/prayer APIs, and production-grade hand tracking are best implemented in the native SwiftUI version.
