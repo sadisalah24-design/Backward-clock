@@ -1,60 +1,22 @@
-<!doctype html>
-<html lang="tr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#000000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Backward Clock">
-<link rel="manifest" href="./manifest.webmanifest?v=4">
-<link rel="apple-touch-icon" href="./icon.svg?v=4">
-<link rel="stylesheet" href="./styles.css?v=4">
-<title>Backward Clock V4</title>
-</head>
-<body>
-<div id="app">
-  <div id="wallpaper" class="wallpaper"></div>
-  <div class="darken"></div>
-
-  <div class="statusbar">
-    <span id="carrier">Türk Telekom</span>
-    <div class="status-icons"><span>▮▮▮</span><span>⌁</span><span id="batteryStatus">45%</span></div>
-  </div>
-
-  <main class="lockscreen">
-    <div id="date" class="date">Perşembe, 27 Ağustos</div>
-    <div id="clock" class="clock">15:56</div>
-    <div id="widgets" class="widgets"></div>
-  </main>
-
-  <button id="flashlight" class="bottom-action flashlight" aria-label="Fener">▮</button>
-  <button id="cameraButton" class="bottom-action camera" aria-label="Kamera">●</button>
-  <div class="home-indicator"></div>
-
-  <button id="settingsButton" class="settings-button" aria-label="Ayarlar">⚙</button>
-  <div id="gestureHint" class="gesture-hint">Elini kameranın önünden geçir</div>
-
-  <section id="settings" class="settings" aria-hidden="true">
-    <div class="settings-card">
-      <div class="settings-top"><h1>Backward Clock</h1><button id="closeSettings">Kapat</button></div>
-      <div class="setting-line"><span>Duvar kâğıdı</span><label class="file-button">Seç<input id="wallpaperInput" type="file" accept="image/*"></label></div>
-      <div class="setting-line"><span>Kamera hareketi</span><input id="cameraToggle" type="checkbox"></div>
-
-      <h2>3 widget</h2>
-      <p class="explain">Sadece üç widget görünür. Aşağıdaki üç yuvadan hangilerinin gösterileceğini seç. Gösteri sırasında widget'lar sabit kalır.</p>
-      <div class="slot-list" id="slotList"></div>
-
-      <div class="settings-actions">
-        <button id="resetButton">Varsayılana dön</button>
-        <button id="saveButton" class="primary">Kaydet</button>
-      </div>
-      <p class="tiny">Duvar kâğıdı, widget seçimi ve sıralaması bu cihazda saklanır.</p>
-    </div>
-  </section>
-
-  <video id="cameraFeed" playsinline muted></video>
-</div>
-<script src="./app.js?v=4"></script>
-</body>
-</html>
+<!doctype html><html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest?v=5"><link rel="apple-touch-icon" href="./icon.svg?v=5"><link rel="stylesheet" href="./styles.css?v=5"><title>Backward Clock V5</title></head>
+<body><div id="app"><div id="wallpaper" class="wallpaper"></div><div class="darken"></div>
+<div class="statusbar"><span>Türk Telekom</span><div class="status-icons"><span>▮▮▮</span><span>⌁</span><span id="batteryStatus">45%</span></div></div>
+<main class="lockscreen"><div id="date" class="date"></div><div id="clock" class="clock"></div><div id="widgets" class="widgets"></div></main>
+<button id="flashlight" class="bottom-action flashlight">▮</button><button id="cameraButton" class="bottom-action camera">●</button><div class="home-indicator"></div>
+<button id="settingsButton" class="settings-button">⚙</button><div id="gestureHint" class="gesture-hint">Elini kameranın önünden geçir</div>
+<section id="setup" class="setup"><div class="setup-card"><div class="setup-title">Backward Clock</div><div class="setup-subtitle">Gösteriyi ayarla</div>
+<div class="setup-preview"><div id="setupRealTime"></div><span>gerçek saat</span></div>
+<label class="control-label">Geriye sarılacak süre</label><div class="duration-row" id="durationRow">
+<button data-seconds="30">30 sn</button><button data-seconds="60" class="selected">1 dk</button><button data-seconds="300">5 dk</button><button data-seconds="600">10 dk</button></div>
+<label class="control-label">Gösteri süresi</label><input id="showDuration" class="range" type="range" min="600" max="5000" step="100" value="1700"><div class="range-value"><span id="showDurationLabel">1.7 sn</span></div>
+<div class="setup-buttons"><button id="startShow" class="primary">Gösteriyi başlat</button><button id="setupSettings" class="secondary">Widget / Duvar kâğıdı</button></div>
+<p class="setup-note">Duvar kâğıdı ve widget ayarların cihazda korunur.</p></div></section>
+<section id="settings" class="settings"><div class="settings-card"><div class="settings-top"><h1>Ayarlar</h1><button id="closeSettings">Kapat</button></div>
+<div class="setting-line"><span>Duvar kâğıdı</span><label class="file-button">Seç<input id="wallpaperInput" type="file" accept="image/*"></label></div>
+<div class="setting-line"><span>Kamera hareketi</span><input id="cameraToggle" type="checkbox"></div>
+<h2>3 widget</h2><p class="explain">Yalnızca üç küçük widget görünür. Soldan sağa üç yuvayı seç.</p><div class="slot-list" id="slotList"></div>
+<div class="settings-actions"><button id="resetButton">Varsayılana dön</button><button id="saveButton" class="primary">Kaydet</button></div></div></section>
+<video id="cameraFeed" playsinline muted></video></div><script src="./app.js?v=5"></script></body></html>
