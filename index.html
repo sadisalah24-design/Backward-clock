@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Backward Clock">
-<link rel="manifest" href="./manifest.webmanifest?v=4">
-<link rel="apple-touch-icon" href="./icon.svg?v=4">
-<link rel="stylesheet" href="./styles.css?v=4">
-<title>Backward Clock V4</title>
+<link rel="manifest" href="./manifest.webmanifest?v=6">
+<link rel="apple-touch-icon" href="./icon.svg?v=6">
+<link rel="stylesheet" href="./styles.css?v=6">
+<title>Backward Clock V6</title>
 </head>
 <body>
 <div id="app">
@@ -31,7 +31,6 @@
   <button id="flashlight" class="bottom-action flashlight" aria-label="Fener">▮</button>
   <button id="cameraButton" class="bottom-action camera" aria-label="Kamera">●</button>
   <div class="home-indicator"></div>
-
   <button id="settingsButton" class="settings-button" aria-label="Ayarlar">⚙</button>
   <div id="gestureHint" class="gesture-hint">Elini kameranın önünden geçir</div>
 
@@ -40,45 +39,48 @@
       <div class="settings-top"><h1>Backward Clock</h1><button id="closeSettings">Kapat</button></div>
       <div class="setting-line"><span>Duvar kâğıdı</span><label class="file-button">Seç<input id="wallpaperInput" type="file" accept="image/*"></label></div>
       <div class="setting-line"><span>Kamera hareketi</span><input id="cameraToggle" type="checkbox"></div>
-
       <h2>3 widget</h2>
-      <p class="explain">Sadece üç widget görünür. Aşağıdaki üç yuvadan hangilerinin gösterileceğini seç. Gösteri sırasında widget'lar sabit kalır.</p>
+      <p class="explain">Sadece üç widget görünür. Üç yuvadan hangilerinin gösterileceğini seç.</p>
       <div class="slot-list" id="slotList"></div>
-
-      <div class="settings-actions">
-        <button id="resetButton">Varsayılana dön</button>
-        <button id="saveButton" class="primary">Kaydet</button>
-      </div>
+      <div class="settings-actions"><button id="resetButton">Varsayılana dön</button><button id="saveButton" class="primary">Kaydet</button></div>
       <p class="tiny">Duvar kâğıdı, widget seçimi ve sıralaması bu cihazda saklanır.</p>
     </div>
   </section>
 
-  <section id="setup" class="setup open">
-    <div class="setup-panel">
+  <video id="cameraFeed" playsinline muted></video>
+
+  <!-- V2-style first screen: freely choose the exact starting time. -->
+  <section id="setup" class="setup" aria-hidden="false">
+    <div class="setup-card">
       <h1>Backwards Clock 🪄</h1>
-      <p class="setup-sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
+      <p class="sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
 
-      <div class="setup-section">
-        <label>Başlangıç saati</label>
-        <input id="startTime" type="time">
-        <p>Gerçek saatten birkaç dakika ileride bir saat seç.</p>
+      <div class="section">
+        <label class="label" for="startTime">Başlangıç saati</label>
+        <input class="field" id="startTime" type="time">
+        <p class="small">Saati istediğin şekilde ayarla. Örneğin gerçek saat 15:40 ise 15:45 seçebilirsin.</p>
       </div>
 
-      <div class="setup-section">
-        <label>Duvar kâğıdı</label>
-        <label class="setup-file">Fotoğraf seç<input id="wallpaperSetupInput" type="file" accept="image/*"></label>
-        <span id="wallpaperName">Seçilmedi</span>
+      <div class="section">
+        <label class="label">Duvar kâğıdı</label>
+        <label class="file" for="wallInput">Fotoğraf seç</label>
+        <input class="hidden" id="wallInput" type="file" accept="image/*">
+        <span id="wallName" class="small file-name">Kayıtlı duvar kâğıdı kullanılacak</span>
       </div>
 
-      <button class="setup-btn secondary" id="cameraPrepare">Kamerayı hazırla</button>
-      <button class="setup-btn primary" id="start">Gösteriyi başlat</button>
-      <button class="setup-btn secondary" id="openSettingsFromSetup">Widget / Görünüm ayarları</button>
-      <p class="setup-note">Duvar kâğıdı ve widget ayarları bu cihazda saklanır. Bir kez ayarladıktan sonra tekrar seçmen gerekmez.</p>
+      <div class="section">
+        <label class="label" for="sens">El hareketi hassasiyeti <span id="sensValue">28</span></label>
+        <input class="range" id="sens" type="range" min="8" max="60" value="28">
+        <p class="small">Daha düşük değer = daha hassas. Daha yüksek değer = daha az hassas.</p>
+      </div>
+
+      <button class="btn secondary" id="cameraPrepare">Kamerayı hazırla</button>
+      <button class="btn primary" id="start">Gösteriyi başlat</button>
+      <button class="btn secondary" id="openSettings">Widget / Görünüm ayarları</button>
+      <p class="small">Kamera ile el hareketi otomatik tetikler. İstersen ekrana dokunarak da numarayı başlatabilirsin.</p>
     </div>
   </section>
-
-  <video id="cameraFeed" playsinline muted></video>
 </div>
-<script src="./app.js?v=4"></script>
+<script src="./app.js?v=6"></script>
 </body>
 </html>
