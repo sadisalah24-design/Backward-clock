@@ -1,34 +1,184 @@
-const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],rewindSeconds:60,showDuration:1700};
+const DEFAULT={
+ wallpaper:null,camera:false,
+ slots:["spotify","date2","prayer"]
+};
 const LABELS={spotify:"Spotify / Müzik",weather:"Hava durumu",prayer:"Ezan vakti",date2:"Tarih",battery:"Pil",custom:"Özel"};
-let state=loadState(),rewinding=false,cameraStream=null,sampleTimer=null,previousFrame=null,lastMotion=0;
-function loadState(){try{const raw=localStorage.getItem("backward-clock-v6")||localStorage.getItem("backward-clock-v5");if(raw){const s=JSON.parse(raw);return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots}}}catch(e){}return structuredClone(DEFAULT)}
-function saveState(){localStorage.setItem("backward-clock-v6",JSON.stringify(state))}
+let state=loadState(), rewinding=false, cameraStream=null, sampleTimer=null, previousFrame=null, lastMotion=0, showStartMs=null;
+
+function loadState(){
+  try{const s=JSON.parse(localStorage.getItem("backward-clock-v4"));if(s)return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots};}catch(e){}
+  return structuredClone(DEFAULT);
+}
+function saveState(){localStorage.setItem("backward-clock-v4",JSON.stringify(state))}
 const $=id=>document.getElementById(id);
-const time=d=>d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",hour12:false});
-const date=d=>d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
-function tick(){if(!rewinding)$("#clock").textContent=time(new Date());$("#date").textContent=date(new Date());$("#setupRealTime").textContent=time(new Date())}setInterval(tick,1000);
-function widgetMarkup(t){const n=new Date();if(t==="spotify")return'<div class="icon">♫</div><div class="label">Müzik</div>';if(t==="weather")return'<div class="value">29°</div><div class="label">Hava</div>';if(t==="prayer")return'<div class="value">16:55</div><div class="label">Asr</div>';if(t==="date2")return`<div class="value">${n.getDate()}</div><div class="label">${n.toLocaleDateString("tr-TR",{month:"long"})}</div>`;if(t==="battery")return'<div class="value" id="widgetBattery">45%</div><div class="label">Pil</div>';return'<div class="value">—</div><div class="label">Özel</div>'}
-function render(){const b=$("#widgets");b.innerHTML="";state.slots.forEach((t,i)=>{const e=document.createElement("div");e.className="widget "+t;e.innerHTML=widgetMarkup(t);e.dataset.slot=i;b.appendChild(e)});renderSlots();updateWidgetBattery()}
-function renderSlots(){const b=$("#slotList");b.innerHTML="";state.slots.forEach((t,i)=>{const r=document.createElement("div");r.className="slot";const o=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===t?"selected":""}>${n}</option>`).join("");r.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${o}</select><span>${i===0?"Sol":i===1?"Orta":"Sağ"}</span>`;b.appendChild(r)})}
-function openSettings(){$("#settings").classList.add("open");$("#cameraToggle").checked=state.camera;renderSlots()}
-function closeSettings(){$("#settings").classList.remove("open")}
-$("#settingsButton").onclick=openSettings;$("#closeSettings").onclick=closeSettings;$("#setupSettings").onclick=()=>{openSettings()};
-$("#slotList").onchange=e=>{const i=Number(e.target.dataset.slot);if(Number.isInteger(i))state.slots[i]=e.target.value;render()};
-$("#cameraToggle").onchange=e=>{state.camera=e.target.checked;saveState();state.camera?startCamera():stopCamera()};
-$("#saveButton").onclick=()=>{saveState();closeSettings()};
-$("#resetButton").onclick=()=>{state=structuredClone(DEFAULT);saveState();applyWallpaper();render();openSettings()};
-$("#wallpaperInput").onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.wallpaper=r.result;saveState();applyWallpaper()};r.readAsDataURL(f)};
-function applyWallpaper(){$("#wallpaper").style.backgroundImage=state.wallpaper?`url("${state.wallpaper}")`:"linear-gradient(135deg,#070707,#1b1b1b)"}
-document.querySelectorAll("#durationRow button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#durationRow button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.rewindSeconds=Number(b.dataset.seconds)});
-$("#showDuration").value=state.showDuration;function durationLabel(){$("#showDurationLabel").textContent=(Number($("#showDuration").value)/1000).toFixed(1)+" sn"}$("#showDuration").oninput=()=>{state.showDuration=Number($("#showDuration").value);durationLabel()};
-function backwardShow(){if(rewinding)return;rewinding=true;const real=Date.now(),st=performance.now(),dur=state.showDuration||1700,amount=(state.rewindSeconds||60)*1000;const id=setInterval(()=>{const p=Math.min(1,(performance.now()-st)/dur),ease=1-Math.pow(1-p,3);$("#clock").textContent=time(new Date(real-amount*(1-ease)));if(p>=1){clearInterval(id);rewinding=false;$("#clock").textContent=time(new Date())}},24)}
-$("#startShow").onclick=()=>{saveState();$("#setup").style.display="none";backwardShow()};
-$("#app").addEventListener("pointerdown",e=>{if($("#setup").style.display!=="none"||$("#settings").classList.contains("open"))return;if(e.target.closest(".settings-button,.bottom-action"))return;backwardShow()});
-async function startCamera(){if(cameraStream||!navigator.mediaDevices?.getUserMedia){return}try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:320,height:240},audio:false});const v=$("#cameraFeed");v.srcObject=cameraStream;await v.play();const c=document.createElement("canvas");c.width=64;c.height=48;const x=c.getContext("2d",{willReadFrequently:true});sampleTimer=setInterval(()=>{if(!cameraStream||!v.videoWidth)return;x.drawImage(v,0,0,64,48);const d=x.getImageData(0,0,64,48).data;if(!previousFrame){previousFrame=d;return}let diff=0;for(let i=0;i<d.length;i+=20)diff+=Math.abs(d[i]-previousFrame[i]);previousFrame=d;if(diff>7000&&Date.now()-lastMotion>2500){lastMotion=Date.now();backwardShow()}},220)}catch(e){state.camera=false;saveState();$("#cameraToggle").checked=false}}
-function stopCamera(){if(sampleTimer)clearInterval(sampleTimer);sampleTimer=null;previousFrame=null;if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}}
-$("#cameraButton").onclick=()=>state.camera?startCamera():openSettings();$("#flashlight").onclick=()=>{$("#gestureHint").classList.add("show");setTimeout(()=>$("#gestureHint").classList.remove("show"),1400)};
-async function initBattery(){try{const b=await navigator.getBattery();const u=()=>{$("#batteryStatus").textContent=Math.round(b.level*100)+"%";const w=$("#widgetBattery");if(w)w.textContent=$("#batteryStatus").textContent};u();b.addEventListener("levelchange",u)}catch{}}
-function updateWidgetBattery(){const w=$("#widgetBattery");if(w)w.textContent=$("#batteryStatus").textContent}
-applyWallpaper();render();tick();durationLabel();initBattery();
-if(state.wallpaper && $("wallpaperName")) $("wallpaperName").textContent="Kayıtlı duvar kâğıdı";
-if($("durationRow")){document.querySelectorAll("#durationRow button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.seconds)===(state.rewindSeconds||60)));}if(state.camera)setTimeout(startCamera,700);if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=6").catch(()=>{});
+
+function formatTime(d){return d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",hour12:false})}
+function formatDate(d){return d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"})}
+
+function tick(){
+  if(!rewinding) $("clock").textContent=formatTime(new Date());
+  $("date").textContent=formatDate(new Date());
+  $("batteryStatus").textContent=(navigator.getBattery? "": "45%");
+}
+setInterval(tick,1000);
+
+function widgetMarkup(type){
+  const now=new Date();
+  if(type==="spotify")return `<div class="icon">♫</div><div class="label">Müzik</div>`;
+  if(type==="weather")return `<div class="value">29°</div><div class="label">Hava</div>`;
+  if(type==="prayer")return `<div class="value">16:55</div><div class="label">Asr</div>`;
+  if(type==="date2")return `<div class="value">${now.getDate()}</div><div class="label">${now.toLocaleDateString("tr-TR",{month:"long"})}</div>`;
+  if(type==="battery")return `<div class="value">45%</div><div class="label">Pil</div>`;
+  return `<div class="value">—</div><div class="label">Özel</div>`;
+}
+
+function render(){
+  const box=$("widgets");box.innerHTML="";
+  state.slots.forEach((type,i)=>{
+    const el=document.createElement("div");el.className="widget "+type;el.dataset.slot=i;el.dataset.type=type;
+    el.innerHTML=widgetMarkup(type);box.appendChild(el);
+  });
+  renderSlots();
+}
+
+function renderSlots(){
+  const box=$("slotList");box.innerHTML="";
+  state.slots.forEach((type,i)=>{
+    const row=document.createElement("div");row.className="slot";
+    const opts=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===type?"selected":""}>${n}</option>`).join("");
+    row.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${opts}</select><span>${i===0?"Sol":i===1?"Orta":"Sağ"}</span>`;
+    box.appendChild(row);
+  });
+}
+
+function openSettings(){
+  $("settings").classList.add("open");$("settings").setAttribute("aria-hidden","false");
+  $("cameraToggle").checked=state.camera;renderSlots();
+}
+function closeSettings(){
+  $("settings").classList.remove("open");$("settings").setAttribute("aria-hidden","true");
+}
+$("settingsButton").onclick=openSettings;
+$("closeSettings").onclick=closeSettings;
+$("slotList").onchange=e=>{
+  const s=Number(e.target.dataset.slot);
+  if(Number.isInteger(s))state.slots[s]=e.target.value;
+  if(new Set(state.slots).size<3){ /* duplicates allowed but corrected on save */ }
+  render();
+};
+$("cameraToggle").onchange=e=>{
+  state.camera=e.target.checked;saveState();
+  if(state.camera)startCamera(); else stopCamera();
+};
+$("saveButton").onclick=()=>{saveState();closeSettings();};
+$("resetButton").onclick=()=>{
+  state=structuredClone(DEFAULT);saveState();render();openSettings();
+};
+
+async function saveWallpaper(file){
+  const reader=new FileReader();
+  reader.onload=()=>{state.wallpaper=reader.result;saveState();applyWallpaper();};
+  reader.readAsDataURL(file);
+}
+$("wallpaperInput").onchange=e=>{if(e.target.files?.[0])saveWallpaper(e.target.files[0])};
+function applyWallpaper(){
+  $("wallpaper").style.backgroundImage=state.wallpaper?`url("${state.wallpaper}")`:"linear-gradient(135deg,#070707,#1b1b1b)";
+}
+function flashHint(){
+  $("gestureHint").classList.add("show");
+  setTimeout(()=>$("gestureHint").classList.remove("show"),1400);
+}
+
+function defaultStartTime(){
+  const d=new Date(Date.now()+5*60000);
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function setupStartTime(){
+  const el=$("startTime");
+  if(!el)return;
+  const now=new Date();
+  const d=showStartMs?new Date(showStartMs):new Date(now.getTime()+5*60000);
+  el.value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function hideSetup(){
+  const el=$("setup");if(el)el.classList.add('hidden');
+}
+function showSetup(){
+  const el=$("setup");if(el)el.classList.remove('hidden');
+  setupStartTime();
+}
+function applySetupWallpaper(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{state.wallpaper=reader.result;saveState();applyWallpaper();const n=$("wallpaperName");if(n)n.textContent=file.name;};
+  reader.readAsDataURL(file);
+}
+function selectedStartMs(){
+  const val=$("startTime")?.value;
+  if(!val)return Date.now()+5*60000;
+  const [h,m]=val.split(':').map(Number);
+  const now=new Date(), d=new Date(now); d.setHours(h,m,0,0);
+  if(d.getTime()<=now.getTime())d.setDate(d.getDate()+1);
+  return d.getTime();
+}
+
+function backwardShow(){
+  if(rewinding)return;
+  rewinding=true;
+  const real=Date.now(), target=showStartMs||real+35000, start=performance.now();
+  const amount=Math.max(1000,target-real), duration=Math.max(1700,Math.min(4200,1300+amount/8));
+  const id=setInterval(()=>{
+    const p=Math.min(1,(performance.now()-start)/duration),ease=1-Math.pow(1-p,3);
+    $("clock").textContent=formatTime(new Date(target-amount*ease));
+    if(p>=1){clearInterval(id);rewinding=false;$("clock").textContent=formatTime(new Date());}
+  },30);
+}
+$("app").addEventListener("pointerdown",e=>{
+  if($("settings").classList.contains("open"))return;
+  if(e.target.closest(".settings-button,.bottom-action"))return;
+  backwardShow();
+});
+
+async function startCamera(){
+  if(cameraStream||!navigator.mediaDevices?.getUserMedia){flashHint();return;}
+  try{
+    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:320,height:240},audio:false});
+    const v=$("cameraFeed");v.srcObject=cameraStream;await v.play();
+    const c=document.createElement("canvas");c.width=64;c.height=48;
+    const ctx=c.getContext("2d",{willReadFrequently:true});
+    sampleTimer=setInterval(()=>{
+      if(!cameraStream||!v.videoWidth)return;
+      ctx.drawImage(v,0,0,64,48);
+      const d=ctx.getImageData(0,0,64,48).data;
+      if(!previousFrame){previousFrame=d;return}
+      let diff=0;for(let i=0;i<d.length;i+=20)diff+=Math.abs(d[i]-previousFrame[i]);
+      previousFrame=d;
+      if(diff>7000 && Date.now()-lastMotion>2500){lastMotion=Date.now();backwardShow();}
+    },220);
+  }catch(e){state.camera=false;saveState();$("cameraToggle").checked=false;flashHint();}
+}
+function stopCamera(){
+  if(sampleTimer)clearInterval(sampleTimer);sampleTimer=null;previousFrame=null;
+  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+}
+$("cameraButton").onclick=()=>state.camera?startCamera():openSettings();
+$("flashlight").onclick=flashHint;
+
+async function initBattery(){
+  try{const b=await navigator.getBattery();const update=()=>{$("batteryStatus").textContent=Math.round(b.level*100)+"%"};update();b.addEventListener("levelchange",update)}catch{}
+}
+applyWallpaper();render();tick();initBattery();
+setupStartTime();
+if(state.wallpaper){const n=$("wallpaperName");if(n)n.textContent="Kayıtlı duvar kâğıdı";}
+$("wallpaperSetupInput").onchange=e=>applySetupWallpaper(e.target.files?.[0]);
+$("cameraPrepare").onclick=async()=>{state.camera=true;saveState();await startCamera();};
+$("start").onclick=async()=>{
+  showStartMs=selectedStartMs();
+  if(showStartMs<=Date.now())showStartMs=Date.now()+5000;
+  hideSetup();
+  if(state.camera&&!cameraStream)await startCamera();
+  flashHint();
+};
+$("openSettingsFromSetup").onclick=openSettings;
+if(state.camera)setTimeout(startCamera,700);
+if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=6").catch(()=>{});
