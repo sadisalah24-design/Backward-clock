@@ -1,8 +1,8 @@
 const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],rewindSeconds:60,showDuration:1700};
 const LABELS={spotify:"Spotify / Müzik",weather:"Hava durumu",prayer:"Ezan vakti",date2:"Tarih",battery:"Pil",custom:"Özel"};
 let state=loadState(),rewinding=false,cameraStream=null,sampleTimer=null,previousFrame=null,lastMotion=0;
-function loadState(){try{const raw=localStorage.getItem("backward-clock-v5")||localStorage.getItem("backward-clock-v4");if(raw){const s=JSON.parse(raw);return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots}}}catch(e){}return structuredClone(DEFAULT)}
-function saveState(){localStorage.setItem("backward-clock-v5",JSON.stringify(state))}
+function loadState(){try{const raw=localStorage.getItem("backward-clock-v6")||localStorage.getItem("backward-clock-v5");if(raw){const s=JSON.parse(raw);return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots}}}catch(e){}return structuredClone(DEFAULT)}
+function saveState(){localStorage.setItem("backward-clock-v6",JSON.stringify(state))}
 const $=id=>document.getElementById(id);
 const time=d=>d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",hour12:false});
 const date=d=>d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
@@ -12,7 +12,7 @@ function render(){const b=$("#widgets");b.innerHTML="";state.slots.forEach((t,i)
 function renderSlots(){const b=$("#slotList");b.innerHTML="";state.slots.forEach((t,i)=>{const r=document.createElement("div");r.className="slot";const o=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===t?"selected":""}>${n}</option>`).join("");r.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${o}</select><span>${i===0?"Sol":i===1?"Orta":"Sağ"}</span>`;b.appendChild(r)})}
 function openSettings(){$("#settings").classList.add("open");$("#cameraToggle").checked=state.camera;renderSlots()}
 function closeSettings(){$("#settings").classList.remove("open")}
-$("#settingsButton").onclick=openSettings;$("#closeSettings").onclick=closeSettings;$("#setupSettings").onclick=()=>{document.querySelector(".setup").style.display="none";openSettings()};
+$("#settingsButton").onclick=openSettings;$("#closeSettings").onclick=closeSettings;$("#setupSettings").onclick=()=>{openSettings()};
 $("#slotList").onchange=e=>{const i=Number(e.target.dataset.slot);if(Number.isInteger(i))state.slots[i]=e.target.value;render()};
 $("#cameraToggle").onchange=e=>{state.camera=e.target.checked;saveState();state.camera?startCamera():stopCamera()};
 $("#saveButton").onclick=()=>{saveState();closeSettings()};
@@ -22,11 +22,13 @@ function applyWallpaper(){$("#wallpaper").style.backgroundImage=state.wallpaper?
 document.querySelectorAll("#durationRow button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#durationRow button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.rewindSeconds=Number(b.dataset.seconds)});
 $("#showDuration").value=state.showDuration;function durationLabel(){$("#showDurationLabel").textContent=(Number($("#showDuration").value)/1000).toFixed(1)+" sn"}$("#showDuration").oninput=()=>{state.showDuration=Number($("#showDuration").value);durationLabel()};
 function backwardShow(){if(rewinding)return;rewinding=true;const real=Date.now(),st=performance.now(),dur=state.showDuration||1700,amount=(state.rewindSeconds||60)*1000;const id=setInterval(()=>{const p=Math.min(1,(performance.now()-st)/dur),ease=1-Math.pow(1-p,3);$("#clock").textContent=time(new Date(real-amount*(1-ease)));if(p>=1){clearInterval(id);rewinding=false;$("#clock").textContent=time(new Date())}},24)}
-$("#startShow").onclick=()=>{saveState();$(".setup")?.style&&($("#setup").style.display="none");backwardShow()};
+$("#startShow").onclick=()=>{saveState();$("#setup").style.display="none";backwardShow()};
 $("#app").addEventListener("pointerdown",e=>{if($("#setup").style.display!=="none"||$("#settings").classList.contains("open"))return;if(e.target.closest(".settings-button,.bottom-action"))return;backwardShow()});
 async function startCamera(){if(cameraStream||!navigator.mediaDevices?.getUserMedia){return}try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:320,height:240},audio:false});const v=$("#cameraFeed");v.srcObject=cameraStream;await v.play();const c=document.createElement("canvas");c.width=64;c.height=48;const x=c.getContext("2d",{willReadFrequently:true});sampleTimer=setInterval(()=>{if(!cameraStream||!v.videoWidth)return;x.drawImage(v,0,0,64,48);const d=x.getImageData(0,0,64,48).data;if(!previousFrame){previousFrame=d;return}let diff=0;for(let i=0;i<d.length;i+=20)diff+=Math.abs(d[i]-previousFrame[i]);previousFrame=d;if(diff>7000&&Date.now()-lastMotion>2500){lastMotion=Date.now();backwardShow()}},220)}catch(e){state.camera=false;saveState();$("#cameraToggle").checked=false}}
 function stopCamera(){if(sampleTimer)clearInterval(sampleTimer);sampleTimer=null;previousFrame=null;if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}}
 $("#cameraButton").onclick=()=>state.camera?startCamera():openSettings();$("#flashlight").onclick=()=>{$("#gestureHint").classList.add("show");setTimeout(()=>$("#gestureHint").classList.remove("show"),1400)};
 async function initBattery(){try{const b=await navigator.getBattery();const u=()=>{$("#batteryStatus").textContent=Math.round(b.level*100)+"%";const w=$("#widgetBattery");if(w)w.textContent=$("#batteryStatus").textContent};u();b.addEventListener("levelchange",u)}catch{}}
 function updateWidgetBattery(){const w=$("#widgetBattery");if(w)w.textContent=$("#batteryStatus").textContent}
-applyWallpaper();render();tick();durationLabel();initBattery();if(state.camera)setTimeout(startCamera,700);if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=5").catch(()=>{});
+applyWallpaper();render();tick();durationLabel();initBattery();
+if(state.wallpaper && $("wallpaperName")) $("wallpaperName").textContent="Kayıtlı duvar kâğıdı";
+if($("durationRow")){document.querySelectorAll("#durationRow button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.seconds)===(state.rewindSeconds||60)));}if(state.camera)setTimeout(startCamera,700);if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=6").catch(()=>{});
