@@ -1,10 +1,20 @@
-# Backward Clock V6 — V4 base + V1/V2 setup
+# Backward Clock V4
 
-V6 intentionally uses V4 as the working display base. The only major UX change is the entry/setup screen, restored to the V1/V2 style.
+V4 focuses on the iPhone lock-screen-like presentation:
+- Only **3 widgets** are visible, directly below the clock.
+- The three slots are **left / center / right** and can be reassigned in Settings.
+- Available widgets: Spotify/Music, Weather, Prayer, Date, Battery, Custom.
+- Wallpaper is saved on the device after the first selection.
+- Widget selection/order is saved.
+- The show animates only the clock; widgets remain fixed.
+- PWA is configured for portrait fullscreen and has a V4 service-worker cache.
 
-- Exact starting time can be entered freely with the iPhone time picker.
-- The selected future time is used as the animation's starting point.
-- Camera movement sensitivity is adjustable with a slider (V2-style).
-- Wallpaper persists in localStorage and does not need to be selected every time.
-- V4's three-widget display remains intact.
-- Camera movement or a screen tap triggers the reverse-time animation.
+## iPhone
+After GitHub Pages publishes the repository:
+1. Open the Pages address in Safari.
+2. Use Share -> Add to Home Screen.
+3. Launch from the Home Screen icon.
+
+If an older version still appears, remove the old Home Screen icon and add it again after refreshing the Pages site. V4 uses a new cache name to avoid retaining the old CSS/JS.
+
+Note: live Spotify metadata, live weather/prayer APIs, and production-grade hand tracking are best implemented in the native SwiftUI version.
