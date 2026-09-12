@@ -4,23 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#000000">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Backward Clock">
-<link rel="manifest" href="./manifest.webmanifest?v=7">
-<link rel="apple-touch-icon" href="./icon.svg?v=7">
-<link rel="stylesheet" href="./styles.css?v=7">
-<title>Backward Clock V7</title>
+<link rel="manifest" href="./manifest.webmanifest?v=6">
+<link rel="apple-touch-icon" href="./icon.svg?v=6">
+<link rel="stylesheet" href="./styles.css?v=6">
+<title>Backward Clock B0.1</title>
 </head>
 <body>
 <div id="app">
   <div id="wallpaper" class="wallpaper"></div>
   <div class="darken"></div>
-
-  <div class="statusbar">
-    <span id="carrier">Türk Telekom</span>
-    <div class="status-icons"><span>▮▮▮</span><span>⌁</span><span id="batteryStatus">45%</span></div>
-  </div>
 
   <main class="lockscreen">
     <div id="date" class="date">Perşembe, 27 Ağustos</div>
@@ -28,115 +30,66 @@
     <div id="widgets" class="widgets"></div>
   </main>
 
-  <button id="flashlight" class="bottom-action flashlight" aria-label="Fener">▮</button>
-  <button id="cameraButton" class="bottom-action camera" aria-label="Kamera">●</button>
-  <div class="home-indicator"></div>
+  <button id="flashlight" class="bottom-action flashlight" aria-label="Fener">
+      <img src="./imgs/ios11-flashlight-control-center-icon-457777135.png"
+     	 alt="Button Image" style="width: 15px; height: 31px;">
+  </button>
 
+  <button id="cameraButton" class="bottom-action camera" aria-label="Kamera">
+        <img src="./imgs/camera.png"
+     	 alt="Button Image" style="width: 50px; height: 50px;">
+  </button>
+  <div class="home-indicator"></div>
   <button id="settingsButton" class="settings-button" aria-label="Ayarlar">⚙</button>
   <div id="gestureHint" class="gesture-hint">Elini kameranın önünden geçir</div>
 
-  <section id="setup" class="setup-screen">
-    <div class="setup-panel">
-      <h1>Backwards Clock 🪄</h1>
-      <p class="setup-sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
-      <div class="setup-section"><label>Başlangıç saati</label><input id="startTime" class="setup-field" type="time"><p>Gerçek saatten birkaç dakika ileride seç.</p></div>
-      <div class="setup-section"><label>Duvar kâğıdı</label><label class="setup-file" for="wallpaperInput">Fotoğraf seç</label></div>
-      <button id="cameraPrepare" class="setup-btn secondary">Kamerayı hazırla</button>
-      <button id="startShow" class="setup-btn primary">Gösteriyi başlat</button>
-      <button id="openSettingsFromSetup" class="setup-btn secondary">Widget / Görünüm ayarları</button>
-      <p class="setup-sub">Kamera ile el hareketi otomatik tetikler. Kamera kullanılamazsa ekrana dokunmak da numarayı başlatır.</p>
-    </div>
-  </section>
   <section id="settings" class="settings" aria-hidden="true">
     <div class="settings-card">
       <div class="settings-top"><h1>Backward Clock</h1><button id="closeSettings">Kapat</button></div>
       <div class="setting-line"><span>Duvar kâğıdı</span><label class="file-button">Seç<input id="wallpaperInput" type="file" accept="image/*"></label></div>
       <div class="setting-line"><span>Kamera hareketi</span><input id="cameraToggle" type="checkbox"></div>
-      <div class="setting-line"><span>Kamera hassasiyeti</span><input id="cameraSensitivity" type="range" min="12" max="55" value="28" step="1" style="width:150px"></div>
-
       <h2>3 widget</h2>
-      <p class="explain">Sadece üç widget görünür. Aşağıdaki üç yuvadan hangilerinin gösterileceğini seç. Gösteri sırasında widget'lar sabit kalır.</p>
+      <p class="explain">Sadece üç widget görünür. Üç yuvadan hangilerinin gösterileceğini seç.</p>
       <div class="slot-list" id="slotList"></div>
-
-      <div class="settings-actions">
-        <button id="resetButton">Varsayılana dön</button>
-        <button id="saveButton" class="primary">Kaydet</button>
-      </div>
+      <div class="settings-actions"><button id="resetButton">Varsayılana dön</button><button id="saveButton" class="primary">Kaydet</button></div>
       <p class="tiny">Duvar kâğıdı, widget seçimi ve sıralaması bu cihazda saklanır.</p>
     </div>
   </section>
 
   <video id="cameraFeed" playsinline muted></video>
+
+  <!-- V2-style first screen: freely choose the exact starting time. -->
+  <section id="setup" class="setup" aria-hidden="false">
+    <div class="setup-card">
+      <h1>Backwards Clock B1.0</h1>
+      <p class="sub">iPhone kilit ekranı görünümünde çalışan sihirbazlık saati.</p>
+
+      <div class="section">
+        <label class="label" for="startTime">Başlangıç saati</label>
+        <input class="field" id="startTime" type="time">
+        <p class="small">Saati istediğin şekilde ayarla. Örneğin gerçek saat 15:40 ise 15:45 seçebilirsin.</p>
+      </div>
+
+      <div class="section">
+        <label class="label">Duvar kâğıdı</label>
+        <label class="file" for="wallInput">Fotoğraf seç</label>
+        <input class="hidden" id="wallInput" type="file" accept="image/*">
+        <span id="wallName" class="small file-name">Kayıtlı duvar kâğıdı kullanılacak</span>
+      </div>
+
+      <div class="section">
+        <label class="label" for="sens">El hareketi hassasiyeti <span id="sensValue">28</span></label>
+        <input class="range" id="sens" type="range" min="8" max="60" value="28">
+        <p class="small">Daha düşük değer = daha hassas. Daha yüksek değer = daha az hassas.</p>
+      </div>
+
+      <button class="btn secondary" id="cameraPrepare">Kamerayı hazırla</button>
+      <button class="btn primary" id="start">Gösteriyi başlat</button>
+      <button class="btn secondary" id="openSettings">Widget / Görünüm ayarları</button>
+      <p class="small">Kamera ile el hareketi otomatik tetikler. İstersen ekrana dokunarak da numarayı başlatabilirsin.</p>
+    </div>
+  </section>
 </div>
-<script>
-(()=>{
-const $=id=>document.getElementById(id);
-const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],sens:28,startTime:""};
-const LABELS={spotify:"Müzik",weather:"Hava",prayer:"Ezan vakti",date2:"Tarih",battery:"Pil",custom:"Özel"};
-let state=load(), running=false, targetMs=null, cameraStream=null, detecting=false, lastFrame=null,lastTrigger=0,raf=0;
-function load(){try{const s=JSON.parse(localStorage.getItem('backward-clock-v6'));return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots}}catch(e){return {...DEFAULT}}}
-function save(){localStorage.setItem('backward-clock-v6',JSON.stringify(state))}
-function pad(n){return String(n).padStart(2,'0')}
-function formatTime(d){return pad(d.getHours())+':'+pad(d.getMinutes())}
-function formatDate(d){return d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'})}
-function tick(){
-  const now=new Date();
-  if(!running){$('date').textContent=formatDate(now);}
-  else if(targetMs!==null){$('date').textContent=formatDate(new Date(targetMs));}
-}
-function widgetMarkup(type){const now=new Date();
- if(type==='spotify')return '<div class="icon">♫</div><div class="label">Müzik</div>';
- if(type==='weather')return '<div class="value">29°</div><div class="label">Hava</div>';
- if(type==='prayer')return '<div class="value">16:55</div><div class="label">Asr</div>';
- if(type==='date2')return '<div class="value">'+now.getDate()+'</div><div class="label">'+now.toLocaleDateString('tr-TR',{month:'long'})+'</div>';
- if(type==='battery')return '<div class="value">45%</div><div class="label">Pil</div>';
- return '<div class="value">—</div><div class="label">Özel</div>';
-}
-function renderWidgets(){const box=$('widgets');box.innerHTML='';state.slots.slice(0,3).forEach((type,i)=>{const el=document.createElement('div');el.className='widget '+type;el.innerHTML=widgetMarkup(type);el.dataset.slot=i;box.appendChild(el)})}
-function applyWallpaper(){ $('wallpaper').style.backgroundImage=state.wallpaper?`url("${state.wallpaper}")`:'linear-gradient(135deg,#070707,#1b1b1b)' }
-function setClock(ms){$('clock').textContent=formatTime(new Date(ms));$('date').textContent=formatDate(new Date(ms))}
-function setInitialClock(){
- let value=$('startTime').value; if(!value){const d=new Date(Date.now()+5*60000);value=pad(d.getHours())+':'+pad(d.getMinutes());$('startTime').value=value}
- state.startTime=value; save();
- const [h,m]=value.split(':').map(Number);const n=new Date();const t=new Date(n);t.setHours(h,m,0,0);if(t<=n)t.setDate(t.getDate()+1);targetMs=t.getTime();setClock(targetMs)
-}
-function openSetup(){ $('setup').style.display='flex'; $('settings').classList.remove('open'); if(state.startTime)$('startTime').value=state.startTime; }
-function openSettings(){ $('settings').classList.add('open');$('settings').setAttribute('aria-hidden','false'); }
-function closeSettings(){ $('settings').classList.remove('open');$('settings').setAttribute('aria-hidden','true'); }
-function flashHint(){ $('gestureHint').classList.add('show');setTimeout(()=>$('gestureHint').classList.remove('show'),1500) }
-function trigger(){
- if(!running || targetMs===null || performance.now()-lastTrigger<2200)return;
- lastTrigger=performance.now(); const from=targetMs,to=Date.now();
- cancelAnimationFrame(raf);const t0=performance.now(),duration=Math.max(1400,Math.min(4200,1200+Math.abs(from-to)/8));
- function f(t){const p=Math.min(1,(t-t0)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;setClock(from+(to-from)*e);if(p<1)raf=requestAnimationFrame(f);else{setClock(to);targetMs=to}}
- raf=requestAnimationFrame(f)
-}
-async function startCamera(){
- if(cameraStream)return true;if(!navigator.mediaDevices?.getUserMedia){flashHint();return false}
- try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});const v=$('cameraFeed');v.srcObject=cameraStream;await v.play();detect();return true}catch(e){flashHint();return false}
-}
-function detect(){if(detecting)return;detecting=true;const c=document.createElement('canvas');c.width=96;c.height=72;const x=c.getContext('2d',{willReadFrequently:true});
- function loop(){if(!detecting)return;if(running&&$('cameraFeed').readyState>=2){x.drawImage($('cameraFeed'),0,0,96,72);const d=x.getImageData(0,0,96,72).data;let diff=0;if(lastFrame){for(let i=0;i<d.length;i+=16)diff+=Math.abs(d[i]-lastFrame[i])+Math.abs(d[i+1]-lastFrame[i+1])+Math.abs(d[i+2]-lastFrame[i+2]);diff/=((d.length/16)*3);if(diff>Number(state.sens||28))trigger()}lastFrame=new Uint8ClampedArray(d)}requestAnimationFrame(loop)}loop()}
-$('startTime').value=state.startTime||(()=>{const d=new Date(Date.now()+5*60000);return pad(d.getHours())+':'+pad(d.getMinutes())})();
-$('wallpaperInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.wallpaper=r.result;save();applyWallpaper()};r.readAsDataURL(f)};
-$('startShow').onclick=async()=>{setInitialClock();$('setup').style.display='none';running=true;await startCamera();flashHint()};
-$('cameraPrepare').onclick=startCamera;
-$('openSettingsFromSetup').onclick=openSettings;
-$('settingsButton').onclick=()=>{openSettings()};
-$('closeSettings').onclick=()=>{closeSettings();openSetup()};
-$('saveButton').onclick=()=>{state.sens=Number($('cameraSensitivity').value||28);save();renderWidgets();closeSettings();openSetup()};
-$('resetButton').onclick=()=>{state={...DEFAULT,slots:[...DEFAULT.slots]};save();$('startTime').value='';renderWidgets();applyWallpaper();openSetup()};
-$('slotList').onchange=e=>{const i=Number(e.target.dataset.slot);if(Number.isInteger(i)){state.slots[i]=e.target.value;renderWidgets()}};
-$('cameraToggle').onchange=e=>{state.camera=e.target.checked;save();if(state.camera)startCamera()};
-$('app').addEventListener('pointerdown',e=>{if($('settings').classList.contains('open'))return;if(e.target.closest('.settings-button,.bottom-action'))return;if(running)trigger()});
-$('cameraButton').onclick=()=>startCamera();$('flashlight').onclick=flashHint;
-// settings slots initial
-function renderSlots(){const box=$('slotList');box.innerHTML='';state.slots.forEach((type,i)=>{const row=document.createElement('div');row.className='slot';const opts=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===type?'selected':''}>${n}</option>`).join('');row.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${opts}</select><span>${i===0?'Sol':i===1?'Orta':'Sağ'}</span>`;box.appendChild(row)})}
-const oldOpenSettings=openSettings;openSettings=()=>{oldOpenSettings();$('cameraToggle').checked=!!state.camera; $('cameraSensitivity').value=state.sens||28; renderSlots()};
-applyWallpaper();renderWidgets();tick();setInterval(tick,1000);openSetup();
-if(state.camera)setTimeout(startCamera,500);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=6').catch(()=>{});
-})();
-</script>
+<script src="./app.js?v=6"></script>
 </body>
 </html>
