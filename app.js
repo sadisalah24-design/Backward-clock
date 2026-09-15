@@ -1,3 +1,13 @@
+function setRealVH() {
+  const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--real-vh', `${h}px`);
+}
+setRealVH();
+window.addEventListener('resize', setRealVH);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', setRealVH);
+}
+
 const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],startTime:null,sens:28};
 const LABELS={spotify:"Spotify / Müzik",weather:"Hava durumu",prayer:"Ezan vakti",date2:"Tarih",battery:"Pil",custom:"Özel"};
 let state=loadState(), rewinding=false, cameraStream=null, sampleTimer=null, previousFrame=null, lastMotion=0, targetStartMs=null, animationId=0;
