@@ -165,6 +165,7 @@ function setSetupVisible(visible){$("setup").classList.toggle("hidden",!visible)
 function trigger(){
   if(triggerdoneFlag)return;
   if(rewinding)return;
+  triggerdoneFlag = true;
   const real=Date.now();
   // Always start from the exact time chosen on the V2-style setup screen.
   const from=(targetStartMs&&targetStartMs>real)?targetStartMs:chosenStartMs();
@@ -177,7 +178,7 @@ function trigger(){
     if(p<1)animationId=requestAnimationFrame(frame);else{rewinding=false;$("clock").textContent=formatTime(new Date());}
   }
   animationId=requestAnimationFrame(frame)
-  triggerdoneFlag = true;
+  
 }
 
 $("app").addEventListener("pointerdown",e=>{
