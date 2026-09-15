@@ -6,8 +6,17 @@ const $=id=>document.getElementById(id);
 function loadState(){try{const s=JSON.parse(localStorage.getItem("backward-clock-v6"));if(s)return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots};}catch(e){}return structuredClone(DEFAULT)}
 function saveState(){localStorage.setItem("backward-clock-v6",JSON.stringify(state))}
 function pad(n){return String(n).padStart(2,"0")}
-function formatTime(d){return d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",hour12:false})}
-function formatDate(d){return d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"})}
+function formatTime(d){return d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false})}
+//function formatDate(d){return d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"long"})}
+
+function formatDate(d) {
+  const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+  const day = d.toLocaleDateString("en-US", { day: "numeric" });
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+
+  return `${weekday} ${day} ${month}`;
+}
+
 function timeInputValue(d){return pad(d.getHours())+":"+pad(d.getMinutes())}
 function chosenStartMs(){
   const v=$("startTime").value; const n=new Date();
@@ -30,15 +39,99 @@ setInterval(tick,1000);
 
 function widgetMarkup(type){
   const now=new Date();
-  if(type==="spotify")return `<div class="icon"><img src="./imgs/spot.png"
+  if(type==="spotify")return `<div class="icon"><img src="./spot.png"
      	 alt="Spotify Image" style="width: 90px; height: 90px;"></div>`;
-  if(type==="weather")return `<div class="value"><img src="./imgs/weather.png"
+  if(type==="weather")return `<div class="value"><img src="./weather.png"
      	 alt="weather Image" style="width: 473px; height: 1024px;"></div>`;
-  if(type==="prayer")return `<div class="label">Asr</div><div class="value">16:55</div>`;
-  if(type==="date2")return `<div class="value">${now.getDate()}</div><div class="label">${now.toLocaleDateString("tr-TR",{month:"long"})}</div>`;
+if(type==="prayer") {
+  return `
+    <div class="label" id="prayerName">Loading...</div>
+    <div class="value" id="prayerTime">--:--</div>
+  `;
+}
+  if(type==="date2")return `<div class="value">${now.getDate()}</div><div class="label">${now.toLocaleDateString("en-US",{month:"long"})}</div>`;
   if(type==="battery")return `<div class="value">45%</div><div class="label">Pil</div>`;
   return `<div class="value">—</div><div class="label">Özel</div>`;
 }
+
+let prayerData = null;
+
+const prayerNames = {
+  Fajr: "Fajr",
+  Sunrise: "Sunrise",
+  Dhuhr: "Dhuhr",
+  Asr: "Asr",
+  Maghrib: "Maghrib",
+  Isha: "Isha"
+};
+
+function getTodayString() {
+  const d = new Date();
+  return [
+    d.getDate().toString().padStart(2, "0"),
+    (d.getMonth() + 1).toString().padStart(2, "0"),
+    d.getFullYear()
+  ].join("-");
+}
+
+async function loadPrayerTimes(latitude, longitude) {
+  try {
+    const date = getTodayString();
+
+    const url =
+      `https://api.aladhan.com/v1/timings/${date}` +
+      `?latitude=${latitude}` +
+      `&longitude=${longitude}` +
+      `&method=13`;
+
+    const response = await fetch(url);
+    const result = await response.json();
+
+    prayerData = result.data.timings;
+    updatePrayerWidget();
+  } catch (error) {
+    console.error("Could not load prayer times:", error);
+
+    const name = document.getElementById("prayerName");
+    const time = document.getElementById("prayerTime");
+
+    if (name) name.textContent = "Prayer";
+    if (time) time.textContent = "--:--";
+  }
+}
+
+function updatePrayerWidget() {
+  if (!prayerData) return;
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const prayers = [
+    ["Fajr", prayerData.Fajr],
+    ["Sunrise", prayerData.Sunrise],
+    ["Dhuhr", prayerData.Dhuhr],
+    ["Asr", prayerData.Asr],
+    ["Maghrib", prayerData.Maghrib],
+    ["Isha", prayerData.Isha]
+  ];
+
+  let nextPrayer = prayers.find(([name, time]) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes > currentMinutes;
+  });
+
+  if (!nextPrayer) {
+    nextPrayer = ["Fajr", prayerData.Fajr];
+  }
+
+  const name = document.getElementById("prayerName");
+  const time = document.getElementById("prayerTime");
+
+  if (name) name.textContent = prayerNames[nextPrayer[0]];
+  if (time) time.textContent = nextPrayer[1];
+}
+
+
 function render(){const box=$("widgets");box.innerHTML="";state.slots.slice(0,3).forEach((type,i)=>{const el=document.createElement("div");el.className="widget "+type;el.dataset.slot=i;el.innerHTML=widgetMarkup(type);box.appendChild(el)});renderSlots()}
 function renderSlots(){const box=$("slotList");if(!box)return;box.innerHTML="";state.slots.forEach((type,i)=>{const row=document.createElement("div");row.className="slot";const opts=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===type?"selected":""}>${n}</option>`).join("");row.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${opts}</select><span>${i===0?"Sol":i===1?"Orta":"Sağ"}</span>`;box.appendChild(row)})}
 function openSettings(){$("settings").classList.add("open");$("settings").setAttribute("aria-hidden","false");$("cameraToggle").checked=state.camera;renderSlots()}
@@ -134,6 +227,28 @@ $("start").onclick = async () => {
 $("openSettings").onclick=()=>{setSetupVisible(false);openSettings()};
 
 async function initBattery(){try{const b=await navigator.getBattery();const update=()=>{$("batteryStatus").textContent=Math.round(b.level*100)+"%"};update();b.addEventListener("levelchange",update)}catch{}}
-applyWallpaper();render();tick();initSetup();initBattery();
+applyWallpaper();render();tick();
+if ("geolocation" in navigator) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const { latitude, longitude } = position.coords;
+
+      loadPrayerTimes(latitude, longitude);
+
+      // Refresh the displayed next prayer every minute
+      setInterval(updatePrayerWidget, 60000);
+
+      // Refresh the complete day's times every hour
+      setInterval(() => {
+        loadPrayerTimes(latitude, longitude);
+      }, 60 * 60 * 1000);
+    },
+    error => {
+      console.error("Location permission was denied:", error);
+    }
+  );
+}
+
+initSetup();initBattery();
 if(state.camera&&state.startTime&&Number(state.startTime)>Date.now())setTimeout(startCamera,700);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=6").catch(()=>{});
