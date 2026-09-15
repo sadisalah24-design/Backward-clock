@@ -37,7 +37,7 @@ function chosenStartMs(){
 }
 
 let showingChosenTime = false;
-let triggerdoneFlag = false;
+
 
 function tick(){
   if (!rewinding && !showingChosenTime) {
@@ -66,6 +66,7 @@ if(type==="prayer") {
 }
 
 let prayerData = null;
+let triggerdoneFlag = false;
 
 const prayerNames = {
   Fajr: "Fajr",
@@ -151,7 +152,7 @@ $("settingsButton").onclick=openSettings;$("closeSettings").onclick=closeSetting
 $("slotList").onchange=e=>{const s=Number(e.target.dataset.slot);if(Number.isInteger(s)){state.slots[s]=e.target.value;saveState();render()}};
 $("cameraToggle").onchange=e=>{state.camera=e.target.checked;saveState();if(state.camera)startCamera();else stopCamera()};
 $("saveButton").onclick=()=>{saveState();closeSettings()};
-$("resetButton").onclick=()=>{state=structuredClone(DEFAULT);saveState();render();openSettings();initSetup()};
+$("resetButton").onclick=()=>{triggerdoneFlag = false;state=structuredClone(DEFAULT);saveState();render();openSettings();initSetup()};
 
 function saveWallpaper(file){const reader=new FileReader();reader.onload=()=>{state.wallpaper=reader.result;saveState();applyWallpaper();$("wallName").textContent=file.name};reader.readAsDataURL(file)}
 $("wallpaperInput").onchange=e=>{if(e.target.files?.[0])saveWallpaper(e.target.files[0])};
@@ -161,6 +162,7 @@ function flashHint(){
   $("gestureHint").classList.add("show");setTimeout(()=>$("gestureHint").classList.remove("show"),1500)
 }
 function setSetupVisible(visible){$("setup").classList.toggle("hidden",!visible);$("setup").setAttribute("aria-hidden",String(!visible))}
+
 
 function trigger(){
   if(triggerdoneFlag)return;
