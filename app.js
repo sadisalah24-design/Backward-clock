@@ -8,12 +8,15 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', setRealVH);
 }
 
-const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],startTime:null,sens:28};
+const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],hidden:[false,false,false],startTime:null,sens:28};
+//const DEFAULT={wallpaper:null,camera:false,slots:["spotify","weather","prayer"],startTime:null,sens:28};
 const LABELS={spotify:"Spotify / Müzik",weather:"Hava durumu",prayer:"Ezan vakti",date2:"Tarih",battery:"Pil",custom:"Özel"};
 let state=loadState(), rewinding=false, cameraStream=null, sampleTimer=null, previousFrame=null, lastMotion=0, targetStartMs=null, animationId=0;
 const $=id=>document.getElementById(id);
 
-function loadState(){try{const s=JSON.parse(localStorage.getItem("backward-clock-v6"));if(s)return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots};}catch(e){}return structuredClone(DEFAULT)}
+function loadState(){try{const s=JSON.parse(localStorage.getItem("backward-clock-v6"));if(s)return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots,hidden:Array.isArray(s.hidden)&&s.hidden.length===3?s.hidden:[false,false,false]};}catch(e){}return structuredClone(DEFAULT)}
+
+//function loadState(){try{const s=JSON.parse(localStorage.getItem("backward-clock-v6"));if(s)return {...DEFAULT,...s,slots:Array.isArray(s.slots)&&s.slots.length===3?s.slots:DEFAULT.slots};}catch(e){}return structuredClone(DEFAULT)}
 function saveState(){localStorage.setItem("backward-clock-v6",JSON.stringify(state))}
 function pad(n){return String(n).padStart(2,"0")}
 function formatTime(d){return d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false})}
@@ -143,9 +146,43 @@ function updatePrayerWidget() {
   if (time) time.textContent = nextPrayer[1];
 }
 
+function render(){
+  const box=$("widgets");box.innerHTML="";
+  state.slots.slice(0,3).forEach((type,i)=>{
+    const el=document.createElement("div");
+    el.className="widget "+type;el.dataset.slot=i;
+    el.innerHTML=widgetMarkup(type);
+    if(state.hidden[i])el.style.visibility="hidden";   // yer kalsın, görünmesin
+    box.appendChild(el);
+  });
+  renderSlots();
+  renderSetupWidgets();
+}
 
-function render(){const box=$("widgets");box.innerHTML="";state.slots.slice(0,3).forEach((type,i)=>{const el=document.createElement("div");el.className="widget "+type;el.dataset.slot=i;el.innerHTML=widgetMarkup(type);box.appendChild(el)});renderSlots()}
+//function render(){const box=$("widgets");box.innerHTML="";state.slots.slice(0,3).forEach((type,i)=>{const el=document.createElement("div");el.className="widget "+type;el.dataset.slot=i;el.innerHTML=widgetMarkup(type);box.appendChild(el)});renderSlots()}
 function renderSlots(){const box=$("slotList");if(!box)return;box.innerHTML="";state.slots.forEach((type,i)=>{const row=document.createElement("div");row.className="slot";const opts=Object.entries(LABELS).map(([v,n])=>`<option value="${v}" ${v===type?"selected":""}>${n}</option>`).join("");row.innerHTML=`<strong>Slot ${i+1}</strong><select data-slot="${i}">${opts}</select><span>${i===0?"Sol":i===1?"Orta":"Sağ"}</span>`;box.appendChild(row)})}
+
+function renderSetupWidgets(){
+  const box=$("widgetToggles");if(!box)return;
+  box.innerHTML="";
+  const pos=["Sol","Orta","Sağ"];
+  state.slots.forEach((type,i)=>{
+    const row=document.createElement("label");
+    row.className="toggle-row";
+    row.innerHTML=`<input type="checkbox" data-slot="${i}" ${state.hidden[i]?"":"checked"}>
+      <span>${pos[i]}: ${LABELS[type]||type}</span>`;
+    box.appendChild(row);
+  });
+}
+$("widgetToggles").onchange=e=>{
+  const i=Number(e.target.dataset.slot);
+  if(Number.isInteger(i)){
+    state.hidden[i]=!e.target.checked;
+    saveState();
+    render();
+  }
+};
+
 function openSettings(){$("settings").classList.add("open");$("settings").setAttribute("aria-hidden","false");$("cameraToggle").checked=state.camera;renderSlots()}
 function closeSettings(){$("settings").classList.remove("open");$("settings").setAttribute("aria-hidden","true")}
 $("settingsButton").onclick=openSettings;$("closeSettings").onclick=closeSettings;
