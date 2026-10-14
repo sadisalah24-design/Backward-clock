@@ -47,6 +47,13 @@
     <div class="settings-card">
       <div class="settings-top"><h1>Backward Clock</h1><button id="closeSettings">Kapat</button></div>
       <div class="setting-line"><span>Duvar kâğıdı</span><label class="file-button">Seç<input id="wallpaperInput" type="file" accept="image/*"></label></div>
+
+      <div class="section">
+  <label class="label">Gösterilecek widget'lar</label>
+  <div id="widgetToggles" class="widget-toggles"></div>
+  <p class="small">İşareti kaldırdığın widget kilit ekranında görünmez.</p>
+</div>
+
       <div class="setting-line"><span>Kamera hareketi</span><input id="cameraToggle" type="checkbox"></div>
       <h2>3 widget</h2>
       <p class="explain">Sadece üç widget görünür. Üç yuvadan hangilerinin gösterileceğini seç.</p>
@@ -79,7 +86,7 @@
 
       <div class="section">
         <label class="label" for="sens">El hareketi hassasiyeti <span id="sensValue">28</span></label>
-        <input class="range" id="sens" type="range" min="8" max="60" value="28">
+	<input class="range" id="sens" type="range" min="8" max="60" value="28">
         <p class="small">Daha düşük değer = daha hassas. Daha yüksek değer = daha az hassas.</p>
       </div>
 
